@@ -46,6 +46,12 @@ export(
     "businessDaysBetween",
     "getHolidayList", "holidayList",
     "setCalendarContext",
+    "IMMcode",
+    "IMMdate",
+    "nextIMMdate",
+    "isIMMdate",
+    "nextIMMcode",
+    "isIMMcode",
     ##--dayCounter.R
     "dayCount",
     "yearFraction",
@@ -113,4 +119,3 @@ S3method("print", "Bond")
 S3method("summary", "Bond")
 
 S3method("print", "FixedRateBond")
-

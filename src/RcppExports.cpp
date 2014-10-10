@@ -1136,6 +1136,77 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
+// IMMcode
+std::string IMMcode(const QuantLib::Date& date);
+RcppExport SEXP RQuantLib_IMMcode(SEXP dateSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< const QuantLib::Date& >::type date(dateSEXP);
+    __result = Rcpp::wrap(IMMcode(date));
+    return __result;
+END_RCPP
+}
+// IMMdate
+QuantLib::Date IMMdate(const std::string& code, const Rcpp::Nullable<QuantLib::Date> referenceDate);
+RcppExport SEXP RQuantLib_IMMdate(SEXP codeSEXP, SEXP referenceDateSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< const std::string& >::type code(codeSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::Nullable<QuantLib::Date> >::type referenceDate(referenceDateSEXP);
+    __result = Rcpp::wrap(IMMdate(code, referenceDate));
+    return __result;
+END_RCPP
+}
+// nextIMMdate
+QuantLib::Date nextIMMdate(const QuantLib::Date& date, bool mainCycle);
+RcppExport SEXP RQuantLib_nextIMMdate(SEXP dateSEXP, SEXP mainCycleSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< const QuantLib::Date& >::type date(dateSEXP);
+    Rcpp::traits::input_parameter< bool >::type mainCycle(mainCycleSEXP);
+    __result = Rcpp::wrap(nextIMMdate(date, mainCycle));
+    return __result;
+END_RCPP
+}
+// isIMMdate
+bool isIMMdate(const QuantLib::Date& date, bool mainCycle);
+RcppExport SEXP RQuantLib_isIMMdate(SEXP dateSEXP, SEXP mainCycleSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< const QuantLib::Date& >::type date(dateSEXP);
+    Rcpp::traits::input_parameter< bool >::type mainCycle(mainCycleSEXP);
+    __result = Rcpp::wrap(isIMMdate(date, mainCycle));
+    return __result;
+END_RCPP
+}
+// isIMMcode
+bool isIMMcode(const std::string& code, bool mainCycle);
+RcppExport SEXP RQuantLib_isIMMcode(SEXP codeSEXP, SEXP mainCycleSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< const std::string& >::type code(codeSEXP);
+    Rcpp::traits::input_parameter< bool >::type mainCycle(mainCycleSEXP);
+    __result = Rcpp::wrap(isIMMcode(code, mainCycle));
+    return __result;
+END_RCPP
+}
+// nextIMMcode
+std::string nextIMMcode(const QuantLib::Date& date, bool mainCycle);
+RcppExport SEXP RQuantLib_nextIMMcode(SEXP dateSEXP, SEXP mainCycleSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< const QuantLib::Date& >::type date(dateSEXP);
+    Rcpp::traits::input_parameter< bool >::type mainCycle(mainCycleSEXP);
+    __result = Rcpp::wrap(nextIMMcode(date, mainCycle));
+    return __result;
+END_RCPP
+}
 // europeanOptionImpliedVolatilityEngine
 double europeanOptionImpliedVolatilityEngine(std::string type, double value, double underlying, double strike, double dividendYield, double riskFreeRate, double maturity, double volatility);
 static SEXP RQuantLib_europeanOptionImpliedVolatilityEngine_try(SEXP typeSEXP, SEXP valueSEXP, SEXP underlyingSEXP, SEXP strikeSEXP, SEXP dividendYieldSEXP, SEXP riskFreeRateSEXP, SEXP maturitySEXP, SEXP volatilitySEXP) {

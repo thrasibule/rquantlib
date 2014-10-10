@@ -173,6 +173,30 @@ calibrateHullWhiteUsingSwapsEngine <- function(termStrcDateVec, termStrcZeroVec,
     .Call('RQuantLib_calibrateHullWhiteUsingSwapsEngine', PACKAGE = 'RQuantLib', termStrcDateVec, termStrcZeroVec, swapDF, iborDateVec, iborZeroVec, iborType, evalDate)
 }
 
+IMMcode <- function(date) {
+    .Call('RQuantLib_IMMcode', PACKAGE = 'RQuantLib', date)
+}
+
+IMMdate <- function(code, referenceDate = NULL) {
+    .Call('RQuantLib_IMMdate', PACKAGE = 'RQuantLib', code, referenceDate)
+}
+
+nextIMMdate <- function(date, mainCycle = TRUE) {
+    .Call('RQuantLib_nextIMMdate', PACKAGE = 'RQuantLib', date, mainCycle)
+}
+
+isIMMdate <- function(date, mainCycle = TRUE) {
+    .Call('RQuantLib_isIMMdate', PACKAGE = 'RQuantLib', date, mainCycle)
+}
+
+isIMMcode <- function(code, mainCycle = TRUE) {
+    .Call('RQuantLib_isIMMcode', PACKAGE = 'RQuantLib', code, mainCycle)
+}
+
+nextIMMcode <- function(date, mainCycle = TRUE) {
+    .Call('RQuantLib_nextIMMcode', PACKAGE = 'RQuantLib', date, mainCycle)
+}
+
 europeanOptionImpliedVolatilityEngine <- function(type, value, underlying, strike, dividendYield, riskFreeRate, maturity, volatility) {
     .Call('RQuantLib_europeanOptionImpliedVolatilityEngine', PACKAGE = 'RQuantLib', type, value, underlying, strike, dividendYield, riskFreeRate, maturity, volatility)
 }
