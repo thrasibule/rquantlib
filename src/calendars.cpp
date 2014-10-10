@@ -323,4 +323,8 @@ void removeHolidays(std::string calendar, std::vector<QuantLib::Date> dates) {
     for (int i=0; i<n; i++) {
         pcal->removeHoliday(dates[i]);
     }
+
+// [[Rcpp::export]]
+QuantLib::Date nextIMMDate(QuantLib::Date day) {
+    return QuantLib::IMM::nextDate(day);
 }

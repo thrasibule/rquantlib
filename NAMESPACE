@@ -52,7 +52,8 @@ export(
     "setCalendarContext",
     "addHolidays",
     "removeHolidays",
-    ##--dayCounter.R
+    "nextIMMDate",
+	##--dayCounter.R
     "dayCount",
     "yearFraction",
     "setEvaluationDate",

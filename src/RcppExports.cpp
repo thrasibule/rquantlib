@@ -1055,6 +1055,15 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< std::vector<QuantLib::Date> >::type dates(datesSEXP);
     removeHolidays(calendar, dates);
     return R_NilValue;
+// nextIMMDate
+QuantLib::Date nextIMMDate(QuantLib::Date day);
+RcppExport SEXP RQuantLib_nextIMMDate(SEXP daySEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< QuantLib::Date >::type day(daySEXP);
+    __result = Rcpp::wrap(nextIMMDate(day));
+    return __result;
 END_RCPP
 }
 // advanceDate

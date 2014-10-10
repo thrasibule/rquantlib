@@ -153,6 +153,10 @@ removeHolidays <- function(calendar, dates) {
     invisible(.Call(`_RQuantLib_removeHolidays`, calendar, dates))
 }
 
+nextIMMDate <- function(day) {
+    .Call(`_RQuantLib_nextIMMDate`, day)
+}
+
 advanceDate <- function(issueDate, days) {
     .Call(`_RQuantLib_advanceDate`, issueDate, days)
 }
