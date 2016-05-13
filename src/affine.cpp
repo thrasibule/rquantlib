@@ -98,10 +98,10 @@ Rcpp::List affineWithRebuiltCurveEngine(Rcpp::List rparam,
     int numRows = swaptionMat.size();
 
     // Create dummy swap to get schedules.
-    QuantLib::Frequency fixedLegFrequency = getFrequency(Rcpp::as<double>(legparams["fixFreq"]));
+    QuantLib::Frequency fixedLegFrequency = getFrequency(Rcpp::as<int>(legparams["fixFreq"]));
     QuantLib::BusinessDayConvention fixedLegConvention = QuantLib::Unadjusted;
     QuantLib::BusinessDayConvention floatingLegConvention = QuantLib::ModifiedFollowing;
-    QuantLib::DayCounter swFixedLegDayCounter = getDayCounter(Rcpp::as<double>(legparams["dayCounter"]));
+    QuantLib::DayCounter swFixedLegDayCounter = getDayCounter(Rcpp::as<int>(legparams["dayCounter"]));
     auto swFloatingLegIndex = qlext::make_shared<QuantLib::Euribor>(QuantLib::Period(Rcpp::as<int>(legparams["floatFreq"]),QuantLib::Months),rhTermStructure);
 
     QuantLib::Rate dummyFixedRate = 0.03;
