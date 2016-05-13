@@ -26,10 +26,10 @@
 // [[Rcpp::export]]
 double zeroPriceByYieldEngine(double yield,
                               double faceAmount,
-                              double dayCounter,
-                              double frequency,
-                              double businessDayConvention,
-                              double compound,
+                              int dayCounter,
+                              int frequency,
+                              int businessDayConvention,
+                              int compound,
                               QuantLib::Date maturityDate,
                               QuantLib::Date issueDate) {
 
@@ -57,10 +57,10 @@ double zeroPriceByYieldEngine(double yield,
 // [[Rcpp::export]]
 double zeroYieldByPriceEngine(double price,
                               double faceAmount,
-                              double dayCounter,
-                              double frequency,
-                              double businessDayConvention,
-                              double compound,
+                              int dayCounter,
+                              int frequency,
+                              int businessDayConvention,
+                              int compound,
                               QuantLib::Date maturityDate,
                               QuantLib::Date issueDate) {
 
@@ -91,11 +91,11 @@ double fixedRateBondYieldByPriceEngine(double settlementDays,
                                        double price,
                                        std::string cal,
                                        double faceAmount,
-                                       double businessDayConvention,
-                                       double compound,
+                                       int businessDayConvention,
+                                       int compound,
                                        double redemption,
-                                       double dayCounter,
-                                       double frequency,
+                                       int dayCounter,
+                                       int frequency,
                                        QuantLib::Date maturityDate,
                                        QuantLib::Date issueDate,
                                        QuantLib::Date effectiveDate,
@@ -128,11 +128,11 @@ double fixedRateBondPriceByYieldEngine(double settlementDays,
                                        double yield,
                                        std::string cal,
                                        double faceAmount,
-                                       double businessDayConvention,
-                                       double compound,
+                                       int businessDayConvention,
+                                       int compound,
                                        double redemption,
-                                       double dayCounter,
-                                       double frequency,
+                                       int dayCounter,
+                                       int frequency,
                                        QuantLib::Date maturityDate,
                                        QuantLib::Date issueDate,
                                        QuantLib::Date effectiveDate,
@@ -179,15 +179,15 @@ Rcpp::List FloatingBond(Rcpp::List rparam,
     QuantLib::Date effectiveDate(Rcpp::as<QuantLib::Date>(rparam["effectiveDate"]));
     double redemption = Rcpp::as<double>(rparam["redemption"]);
 
-    double settlementDays = Rcpp::as<double>(datemisc["settlementDays"]);
+    int settlementDays = Rcpp::as<int>(datemisc["settlementDays"]);
     std::string cal = Rcpp::as<std::string>(datemisc["calendar"]);
-    double dayCounter = Rcpp::as<double>(datemisc["dayCounter"]);
-    double frequency = Rcpp::as<double>(datemisc["period"]);
-    double businessDayConvention = Rcpp::as<double>(datemisc["businessDayConvention"]);
-    double terminationDateConvention = Rcpp::as<double>(datemisc["terminationDateConvention"]);
-    double dateGeneration = Rcpp::as<double>(datemisc["dateGeneration"]);
+    int dayCounter = Rcpp::as<int>(datemisc["dayCounter"]);
+    int frequency = Rcpp::as<int>(datemisc["period"]);
+    int businessDayConvention = Rcpp::as<int>(datemisc["businessDayConvention"]);
+    int terminationDateConvention = Rcpp::as<int>(datemisc["terminationDateConvention"]);
+    int dateGeneration = Rcpp::as<int>(datemisc["dateGeneration"]);
     bool endOfMonth = Rcpp::as<bool>(datemisc["endOfMonth"]);
-    double fixingDays = Rcpp::as<double>(datemisc["fixingDays"]);
+    int fixingDays = Rcpp::as<int>(datemisc["fixingDays"]);
 
     //build schedule
     QuantLib::BusinessDayConvention bdc = getBusinessDayConvention(businessDayConvention);
@@ -332,16 +332,15 @@ Rcpp::List FixedRateWithYield(Rcpp::List bondparam,
 
     // get calc parameters
     QuantLib::DayCounter calcDayCounter =
-        getDayCounter(Rcpp::as<double>(calcparam["dayCounter"]));
+        getDayCounter(Rcpp::as<int>(calcparam["dayCounter"]));
     QuantLib::Compounding compounding =
-        getCompounding(Rcpp::as<double>(calcparam["compounding"]));
+        getCompounding(Rcpp::as<int>(calcparam["compounding"]));
     QuantLib::Frequency calcFreq =
-        getFrequency(Rcpp::as<double>(calcparam["freq"]));
+        getFrequency(Rcpp::as<int>(calcparam["freq"]));
     QuantLib::Duration::Type durationType =
-        getDurationType(Rcpp::as<double>(calcparam["durationType"]));
+        getDurationType(Rcpp::as<int>(calcparam["durationType"]));
 
     QuantLib::ext::shared_ptr<QuantLib::FixedRateBond> bond = getFixedRateBond(bondparam, ratesVec, scheduleparam);
-
     QuantLib::Date sd = bond->settlementDate();
     const Rcpp::Date settlementDate(sd.month(), sd.dayOfMonth(), sd.year());
 
@@ -363,13 +362,13 @@ Rcpp::List FixedRateWithPrice(Rcpp::List bondparam,
 
     // get calc parameters
     QuantLib::DayCounter calcDayCounter =
-        getDayCounter(Rcpp::as<double>(calcparam["dayCounter"]));
+        getDayCounter(Rcpp::as<int>(calcparam["dayCounter"]));
     QuantLib::Compounding compounding =
-        getCompounding(Rcpp::as<double>(calcparam["compounding"]));
+        getCompounding(Rcpp::as<int>(calcparam["compounding"]));
     QuantLib::Frequency calcFreq =
-        getFrequency(Rcpp::as<double>(calcparam["freq"]));
+        getFrequency(Rcpp::as<int>(calcparam["freq"]));
     QuantLib::Duration::Type durationType =
-        getDurationType(Rcpp::as<double>(calcparam["durationType"]));
+        getDurationType(Rcpp::as<int>(calcparam["durationType"]));
     double accuracy = Rcpp::as<double>(calcparam["accuracy"]);
     double maxEvaluations = Rcpp::as<double>(calcparam["maxEvaluations"]);
 
@@ -400,13 +399,13 @@ Rcpp::List FixedRateWithRebuiltCurve(Rcpp::List bondparam,
 
     // get calc parameters
     QuantLib::DayCounter calcDayCounter =
-        getDayCounter(Rcpp::as<double>(calcparam["dayCounter"]));
+        getDayCounter(Rcpp::as<int>(calcparam["dayCounter"]));
     QuantLib::Compounding compounding =
-        getCompounding(Rcpp::as<double>(calcparam["compounding"]));
+        getCompounding(Rcpp::as<int>(calcparam["compounding"]));
     QuantLib::Frequency calcFreq =
-        getFrequency(Rcpp::as<double>(calcparam["freq"]));
+        getFrequency(Rcpp::as<int>(calcparam["freq"]));
     QuantLib::Duration::Type durationType =
-        getDurationType(Rcpp::as<double>(calcparam["durationType"]));
+        getDurationType(Rcpp::as<int>(calcparam["durationType"]));
     double accuracy = Rcpp::as<double>(calcparam["accuracy"]);
     double maxEvaluations = Rcpp::as<double>(calcparam["maxEvaluations"]);
 

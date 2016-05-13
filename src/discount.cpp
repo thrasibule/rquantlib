@@ -52,7 +52,6 @@ Rcpp::List discountCurveEngine(Rcpp::List rparams,
     }
     // initialise from the singleton instance
     QuantLib::Calendar calendar = RQLContext::instance().calendar;
-    //Integer fixingDays = RQLContext::instance().fixingDays;
 
     // Any DayCounter would be fine.
     // ActualActual::ISDA ensures that 30 years is 30.0
@@ -73,10 +72,9 @@ Rcpp::List discountCurveEngine(Rcpp::List rparams,
         std::vector<QuantLib::ext::shared_ptr<QuantLib::RateHelper> > curveInput;
 
         // For general swap inputs, not elegant but necessary to pass to getRateHelper()
-        double fixDayCount = Rcpp::as<double>(legParams["dayCounter"]);
-        double fixFreq   = Rcpp::as<double>(legParams["fixFreq"]) ;
+        int fixDayCount = Rcpp::as<int>(legParams["dayCounter"]);
+        int fixFreq   = Rcpp::as<int>(legParams["fixFreq"]) ;
         int floatFreq = Rcpp::as<int>(legParams["floatFreq"]);
-        //int floatFreq2 = 6;
 
         for(i = 0; i < tslist.size(); i++) {
             std::string name = tsNames[i];
