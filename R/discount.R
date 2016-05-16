@@ -53,10 +53,10 @@ DiscountCurve.default <- function(params, tsQuotes, times=seq(0,10,.1),
   
     ## Finally ready to make the call...
     ##val <- .Call("DiscountCurve", params, tsQuotes, times, PACKAGE="RQuantLib")
-    matchlegs<-matchParams(legparams)
+    matchlegs <- matchParams(legparams)
     ##val <- discountCurveEngine(params, tsQuotes, times,matchCpnmonthFreq=as.integer(monthFreq))
-    val <- discountCurveEngine(params, tsQuotes, times,matchlegs)
-  
+    val <- discountCurveEngine(params, tsQuotes, times, matchlegs)
+
     val[["table"]] <- as.data.frame(val[["table"]])  ## Windows all of a sudden needs this
     class(val) <- c("DiscountCurve")
     val
