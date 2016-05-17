@@ -17,13 +17,13 @@
 ##  You should have received a copy of the GNU General Public License
 ##  along with RQuantLib.  If not, see <http://www.gnu.org/licenses/>.
 
-Schedule <- function(params){
+Schedule <- function(params, ...){
     UseMethod("Schedule")
 }
 
-Schedule.default <- function(params) {
+Schedule.list <- function(params) {
     val <- 0
-    
+
     # check schedule params
     if (is.null(params$effectiveDate)){
         stop("schedule effective date undefined.")
@@ -38,6 +38,15 @@ Schedule.default <- function(params) {
     if (is.null(params$dateGeneration)) params$dateGeneration <- 'Backward'
     if (is.null(params$endOfMonth)) params$endOfMonth <- 0
     params <- matchParams(params)
-    
     CreateSchedule(params)
+}
+
+Schedule.default <- function(effectiveDate, maturityDate,
+                             period="Semiannual",
+                             calendar="TARGET",
+                             businessDayConvention= "Following",
+                             terminationDateConvention= "Following",
+                             dateGeneration= "Backward",
+                             endOfMonth=F) {
+    Schedule.list(as.list(environment()))
 }
