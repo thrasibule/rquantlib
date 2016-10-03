@@ -35,7 +35,7 @@ Rcpp::List discountCurveEngine(Rcpp::List rparams,
     QuantLib::Date settlementDate(Rcpp::as<QuantLib::Date>(rparams["settleDate"]));
     RQLContext::instance().settleDate = settlementDate;
 
-    QuantLib::Date evalDate = QuantLib::Settings::instance().evaluationDate();
+    QuantLib::SavedSettings backup;
 
     QuantLib::Settings::instance().evaluationDate() = todaysDate;
     std::string firstQuoteName = tsNames[0];
@@ -104,8 +104,6 @@ Rcpp::List discountCurveEngine(Rcpp::List rparams,
         fwds[i] = curve->forwardRate(t, t+dt, QuantLib::Continuous);
         zero[i] = curve->zeroRate(t, QuantLib::Continuous);
     }
-
-    QuantLib::Settings::instance().evaluationDate() = evalDate;
 
     std::vector<QuantLib::Date> dates;
     std::vector<double> zeroRates;
