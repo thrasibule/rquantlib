@@ -91,6 +91,7 @@ Rcpp::List discountCurveEngine(Rcpp::List rparams,
             ts = getTermStructure(interpWhat, interpHow, settlementDate, 
                                   curveInput, termStructureDayCounter, tolerance);
         curve = ts;
+        curve->enableExtrapolation();
     }
 
     // Return discount, forward rate, and zero coupon curves
