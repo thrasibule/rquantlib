@@ -85,7 +85,7 @@ Rcpp::XPtr<QuantLib::YieldTermStructure> discountCurveEngine(Rcpp::List rparams,
 std::vector<double> discountFactors(const Rcpp::XPtr<QuantLib::YieldTermStructure>& yts,
                                     const std::vector<QuantLib::Date>& dates) {
     std::vector<double> results;
-    for(auto it = dates.begin(); it != dates.end(); ++it) {
+    for(std::vector<QuantLib::Date>::const_iterator it = dates.begin(); it != dates.end(); ++it) {
         results.push_back(yts->discount(*it));
     }
     return results;
@@ -95,7 +95,7 @@ std::vector<double> discountFactors(const Rcpp::XPtr<QuantLib::YieldTermStructur
 std::vector<double> zeroRates(const Rcpp::XPtr<QuantLib::YieldTermStructure>& yts,
                               const std::vector<QuantLib::Date>& dates) {
     std::vector<double> results;
-    for(auto it = dates.begin(); it != dates.end(); ++it) {
+    for(std::vector<QuantLib::Date>::const_iterator it = dates.begin(); it != dates.end(); ++it) {
         results.push_back(yts->zeroRate(*it, QuantLib::ActualActual(), QuantLib::Continuous));
     }
     return results;
@@ -107,7 +107,7 @@ std::vector<double> forwardRates(const Rcpp::XPtr<QuantLib::YieldTermStructure>&
                                  std::string period) {
     QuantLib::Period p = QuantLib::PeriodParser::parse(period);
     std::vector<double> results;
-    for(auto it = dates.begin(); it != dates.end(); ++it) {
+    for(std::vector<QuantLib::Date>::const_iterator it = dates.begin(); it != dates.end(); ++it) {
         results.push_back(yts->forwardRate(*it, p, QuantLib::ActualActual(), QuantLib::Continuous));
     }
     return results;
