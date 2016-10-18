@@ -1,7 +1,9 @@
 DayCounter <- R6Class("DayCounter",
                       public = list(
                           initialize = function(name) {
-                              private$ptr <- getDaycounter(matchDayCounter(name))
+                              if(!missing(name)) {
+                                  private$ptr <- getDaycounter(matchDayCounter(name))
+                              }
                           },
                           dayCount = function(startDates, endDates) {
                               dayCount(private$ptr, startDates, endDates)

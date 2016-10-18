@@ -24,7 +24,9 @@
 Calendar <- R6Class("Calendar",
                     public = list(
                         initialize = function(name) {
-                            private$ptr <- getCalendar(name)
+                            if(!missing(name)) {
+                                private$ptr <- getCalendar(name)
+                            }
                         },
                         isBusinessDay = function(dates) {
                             isBusinessDay(private$ptr, dates)
