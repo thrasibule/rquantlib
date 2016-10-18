@@ -92,7 +92,7 @@ ObservableDB::getRateHelper(std::string& ticker, QuantLib::Rate r, int fixDayCou
     if (type == RQLDeposit) {
         rh = QuantLib::ext::make_shared<QuantLib::DepositRateHelper>(
             r, n1*units, fixingDays,
-                                                 calendar, QuantLib::ModifiedFollowing,
+            calendar, QuantLib::ModifiedFollowing,
             endOfMonth, // false
             depositDayCounter);
     } else if (type == RQLSwap) {
@@ -139,82 +139,82 @@ ObservableDB::getRateHelper(std::string& ticker, QuantLib::Rate r, int fixDayCou
 // Return the term structure built using a set of RateHelpers (curveInput)
 // employing the specified interpolation method and day counter.
 QuantLib::YieldTermStructure*
-getTermStructure (std::string& interpWhat, std::string& interpHow,
-                  const QuantLib::Date& settlementDate,
+getTermStructure (const std::string& interpWhat, const std::string& interpHow,
+                  const QuantLib::Natural settlementDays,
+                  const QuantLib::Calendar& calendar,
                   const std::vector<QuantLib::ext::shared_ptr<QuantLib::RateHelper> >& curveInput,
                   QuantLib::DayCounter& dayCounter, QuantLib::Real tolerance) {
 
-    // the identifiers are just too bloody long so this functions like a 120 col or so display
     QuantLib::YieldTermStructure* ts;
-    if (interpWhat.compare("discount") == 0 &&
-        interpHow.compare("linear") == 0) {
+    if (interpWhat == "discount"  && interpHow == "linear" ) {
         ts = new QuantLib::PiecewiseYieldCurve<QuantLib::Discount,
                                                QuantLib::Linear>(
-                                                   settlementDate,
+                                                   settlementDays,
+                                                   calendar,
                                                    curveInput,
                                                    dayCounter,
                                                    tolerance);
-    } else if (interpWhat.compare("discount") == 0 &&
-               interpHow.compare("loglinear") == 0) {
+    } else if (interpWhat == "discount"  && interpHow == "loglinear" ) {
         ts = new QuantLib::PiecewiseYieldCurve<QuantLib::Discount,
                                                QuantLib::LogLinear>(
-                                                   settlementDate,
+                                                   settlementDays,
+                                                   calendar,
                                                    curveInput,
                                                    dayCounter,
                                                    tolerance);
-    } else if (interpWhat.compare("discount") == 0 &&
-               interpHow.compare("spline") == 0) {
+    } else if (interpWhat == "discount" && interpHow == "spline") {
         ts = new QuantLib::PiecewiseYieldCurve<QuantLib::Discount,
                                                QuantLib::Cubic>(
-                                                   settlementDate,
+                                                   settlementDays,
+                                                   calendar,
                                                    curveInput,
                                                    dayCounter,
                                                    tolerance);
-    } else if (interpWhat.compare("forward") == 0 &&
-               interpHow.compare("linear") == 0) {
+    } else if (interpWhat == "forward"  && interpHow == "linear" ) {
         ts = new QuantLib::PiecewiseYieldCurve<QuantLib::ForwardRate,
                                                QuantLib::Linear>(
-                                                   settlementDate,
+                                                   settlementDays,
+                                                   calendar,
                                                    curveInput,
                                                    dayCounter,
                                                    tolerance);
-    } else if (interpWhat.compare("forward") == 0 &&
-               interpHow.compare("loglinear") == 0) {
+    } else if (interpWhat == "forward"  && interpHow == "loglinear" ) {
         ts = new QuantLib::PiecewiseYieldCurve<QuantLib::ForwardRate,
                                                QuantLib::LogLinear>(
-                                                   settlementDate,
+                                                   settlementDays,
+                                                   calendar,
                                                    curveInput,
                                                    dayCounter,
                                                    tolerance);
-    } else if (interpWhat.compare("forward") == 0 &&
-               interpHow.compare("spline") == 0) {
+    } else if (interpWhat == "forward"  && interpHow == "spline" ) {
             ts = new QuantLib::PiecewiseYieldCurve<QuantLib::ForwardRate,
                                                    QuantLib::Cubic>(
-                                                       settlementDate,
+                                                       settlementDays,
+                                                       calendar,
                                                        curveInput,
                                                        dayCounter,
                                                        tolerance);
-    } else if (interpWhat.compare("zero") == 0 &&
-               interpHow.compare("linear") == 0) {
+    } else if (interpWhat == "zero" && interpHow == "linear" ) {
         ts = new QuantLib::PiecewiseYieldCurve<QuantLib::ZeroYield,
                                               QuantLib::Linear>(
-                                                  settlementDate,
+                                                  settlementDays,
+                                                  calendar,
                                                   curveInput,
                                                   dayCounter,
                                                   tolerance);
-    } else if (interpWhat.compare("zero") == 0 &&
-               interpHow.compare("loglinear") == 0) {
+    } else if (interpWhat == "zero" && interpHow == "loglinear" ) {
         ts = new QuantLib::PiecewiseYieldCurve<QuantLib::ZeroYield,
                                                QuantLib::LogLinear>(
-                                                   settlementDate,
+                                                   settlementDays,
+                                                   calendar,
                                                    curveInput,
                                                    dayCounter,
                                                    tolerance);
-    } else if (interpWhat.compare("zero") == 0 &&
-               interpHow.compare("spline") == 0) {
+    } else if (interpWhat == "zero" && interpHow == "spline" ) {
         ts = new QuantLib::PiecewiseYieldCurve<QuantLib::ZeroYield,
                                                QuantLib::Cubic>(
-                                                   settlementDate,
+                                                   settlementDays,
+                                                   calendar,
                                                    curveInput,
                                                    dayCounter,
                                                    tolerance);

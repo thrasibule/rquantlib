@@ -270,15 +270,16 @@ std::vector<QuantLib::Date> advance1(const Rcpp::XPtr<QuantLib::Calendar>& calen
 
 // [[Rcpp::export]]
 std::vector<QuantLib::Date> advance2(const Rcpp::XPtr<QuantLib::Calendar>& calendar,
-                                     int period, int bdcVal, bool emr,
+                                     const std::string& period,
+                                     int bdcVal, bool emr,
                                      const std::vector<QuantLib::Date>& dates) {
 
     QuantLib::BusinessDayConvention bdc = getBusinessDayConvention(bdcVal);
+    QuantLib::Period p = QuantLib::PeriodParser::parse(period);
     std::vector<QuantLib::Date> advance;
     for (std::vector<QuantLib::Date>::const_iterator it = dates.begin();
          it != dates.end(); ++it) {
-        advance.push_back(calendar->advance(*it, QuantLib::Period(getFrequency(period)),
-                                            bdc, emr));
+        advance.push_back(calendar->advance(*it, p, bdc, emr));
     }
     return advance;
 }

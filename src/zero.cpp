@@ -86,16 +86,16 @@ Rcpp::DataFrame zbtyield(std::vector<QuantLib::Date> MatDates,
     QuantLib::Calendar calendar = *RQLContext::instance().calendar;
     QuantLib::Date todaysDate = calendar.advance(SettleDates[0], -2, QuantLib::Days);
     QuantLib::Settings::instance().evaluationDate() = todaysDate;
-    QuantLib::Period p(getFrequency(2));
+    QuantLib::Period p(QuantLib::Semiannual);
     double faceAmount = 100;
-    QuantLib::DayCounter dayCounter = getDayCounter(2);
+    QuantLib::DayCounter dayCounter = QuantLib::ActualActual();
     bool emr = true;
     for (QuantLib::Size  j = 0; j< numberOfBonds;j++){
 
         if (bondparam.ncol() > 1) {
             p = QuantLib::Period(getFrequency(bondparam(j,2)));
             faceAmount = bondparam(j,1);
-            dayCounter = getDayCounter(3);
+            dayCounter = getDayCounter(bondparam(j,3));
             emr = (bondparam(j,4)==0) ? false : true;
         }
 

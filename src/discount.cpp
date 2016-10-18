@@ -23,38 +23,24 @@
 #include <rquantlib_internal.h>
 
 // [[Rcpp::export]]
-Rcpp::XPtr<QuantLib::YieldTermStructure> discountCurveEngine(Rcpp::List rparams,
-                                                             Rcpp::List tslist,
-                                                             Rcpp::List legParams) {
+Rcpp::XPtr<QuantLib::YieldTermStructure> PiecewiseYieldCurve(
+    const std::string& trait, const std::string& interpolator,
+    int settlementDays,
+    const Rcpp::XPtr<QuantLib::Calendar>& calendar,
+    const Rcpp::XPtr<QuantLib::DayCounter>& termStructureDayCounter,
+    Rcpp::List tslist,
+    Rcpp::List legParams,
+    double tolerance) {
 
     std::vector<std::string> tsNames = tslist.names();
 
-    QuantLib::Date todaysDate(Rcpp::as<QuantLib::Date>(rparams["tradeDate"]));
-    QuantLib::Date settlementDate(Rcpp::as<QuantLib::Date>(rparams["settleDate"]));
-    RQLContext::instance().settleDate = settlementDate;
-
-    QuantLib::SavedSettings backup;
-
-    QuantLib::Settings::instance().evaluationDate() = todaysDate;
     std::string firstQuoteName = tsNames[0];
-
-    std::string interpWhat, interpHow;
-    if (firstQuoteName.compare("flat") != 0) {
-        // Get interpolation method (not needed for "flat" case)
-        interpWhat = Rcpp::as<std::string>(rparams["interpWhat"]);
-        interpHow  = Rcpp::as<std::string>(rparams["interpHow"]);
-    }
-    // initialise from the singleton instance
-    QuantLib::Calendar calendar = *RQLContext::instance().calendar;
-
-    QuantLib::DayCounter termStructureDayCounter = QuantLib::Actual365Fixed();
-    double tolerance = 1e-12;
     QuantLib::YieldTermStructure* curve;
 
-    if (firstQuoteName.compare("flat") == 0) {            // Create a flat term structure.
+    if (firstQuoteName == "flat") {            // Create a flat term structure.
         double rateQuote = Rcpp::as<double>(tslist[0]);
-        curve = flatRate(settlementDate, rateQuote, QuantLib::Actual365Fixed()).get();
-
+        curve = new QuantLib::FlatForward(settlementDays, *calendar, rateQuote,
+                                          *termStructureDayCounter);
     } else {             // Build curve based on a set of observed rates and/or prices.
         std::vector<QuantLib::ext::shared_ptr<QuantLib::RateHelper> > curveInput;
 
@@ -74,16 +60,18 @@ Rcpp::XPtr<QuantLib::YieldTermStructure> discountCurveEngine(Rcpp::List rparams,
                 throw std::range_error("Unknown rate in getRateHelper");
             curveInput.push_back(rh);
         }
-        curve = getTermStructure(interpWhat, interpHow, settlementDate,
-                                 curveInput, termStructureDayCounter, tolerance);
+        curve = getTermStructure(trait, interpolator, settlementDays,
+                                 *calendar,
+                                 curveInput,
+                                 *termStructureDayCounter, tolerance);
         curve->enableExtrapolation();
     }
     return Rcpp::XPtr<QuantLib::YieldTermStructure>(curve, true);
 }
 
 // [[Rcpp::export]]
-std::vector<double> discountFactors(const Rcpp::XPtr<QuantLib::YieldTermStructure>& yts,
-                                    const std::vector<QuantLib::Date>& dates) {
+std::vector<double> discount(const Rcpp::XPtr<QuantLib::YieldTermStructure>& yts,
+                             const std::vector<QuantLib::Date>& dates) {
     std::vector<double> results;
     for(std::vector<QuantLib::Date>::const_iterator it = dates.begin(); it != dates.end(); ++it) {
         results.push_back(yts->discount(*it));
@@ -92,23 +80,27 @@ std::vector<double> discountFactors(const Rcpp::XPtr<QuantLib::YieldTermStructur
 }
 
 // [[Rcpp::export]]
-std::vector<double> zeroRates(const Rcpp::XPtr<QuantLib::YieldTermStructure>& yts,
-                              const std::vector<QuantLib::Date>& dates) {
+std::vector<double> zeroRate(const Rcpp::XPtr<QuantLib::YieldTermStructure>& yts,
+                             const std::vector<QuantLib::Date>& dates,
+                             const Rcpp::XPtr<QuantLib::DayCounter>& dc,
+                             int comp = 2) {
     std::vector<double> results;
     for(std::vector<QuantLib::Date>::const_iterator it = dates.begin(); it != dates.end(); ++it) {
-        results.push_back(yts->zeroRate(*it, QuantLib::ActualActual(), QuantLib::Continuous));
+        results.push_back(yts->zeroRate(*it, *dc, static_cast<QuantLib::Compounding>(comp)));
     }
     return results;
 }
 
 // [[Rcpp::export]]
-std::vector<double> forwardRates(const Rcpp::XPtr<QuantLib::YieldTermStructure>& yts,
-                                 const std::vector<QuantLib::Date>& dates,
-                                 std::string period) {
+std::vector<double> forwardRate(const Rcpp::XPtr<QuantLib::YieldTermStructure>& yts,
+                                const std::vector<QuantLib::Date>& dates,
+                                const std::string& period,
+                                const Rcpp::XPtr<QuantLib::DayCounter>& dc,
+                                int comp = 2) {
     QuantLib::Period p = QuantLib::PeriodParser::parse(period);
     std::vector<double> results;
     for(std::vector<QuantLib::Date>::const_iterator it = dates.begin(); it != dates.end(); ++it) {
-        results.push_back(yts->forwardRate(*it, p, QuantLib::ActualActual(), QuantLib::Continuous));
+        results.push_back(yts->forwardRate(*it, p, *dc, static_cast<QuantLib::Compounding>(comp)));
     }
     return results;
 }
@@ -116,4 +108,22 @@ std::vector<double> forwardRates(const Rcpp::XPtr<QuantLib::YieldTermStructure>&
 // [[Rcpp::export]]
 QuantLib::Date referenceDate(const Rcpp::XPtr<QuantLib::YieldTermStructure>& yts) {
     return yts->referenceDate();
+}
+
+// [[Rcpp::export]]
+QuantLib::Date maxDate(const Rcpp::XPtr<QuantLib::YieldTermStructure>& yts) {
+    return yts->maxDate();
+}
+// [[Rcpp::export]]
+void setExtrapolation(const Rcpp::XPtr<QuantLib::YieldTermStructure>& yts, bool enabled) {
+    if(enabled) {
+        yts->enableExtrapolation();
+    } else {
+        yts->disableExtrapolation();
+    }
+}
+
+// [[Rcpp::export]]
+bool allowsExtrapolation(const Rcpp::XPtr<QuantLib::YieldTermStructure>& yts) {
+    return yts->allowsExtrapolation();
 }

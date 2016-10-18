@@ -5,7 +5,7 @@ importFrom("Rcpp", "Rcpp.plugin.maker", "sourceCpp")
 importFrom("stats", "sd")
 importFrom("graphics", "par", "plot", "lines", "legend")
 importFrom("utils", "compareVersion")
-importFrom("zoo","zoo","na.spline") 
+importFrom("zoo","zoo","na.spline")
 importFrom("R6", "R6Class")
 
 useDynLib("RQuantLib", .registration=TRUE)
@@ -45,18 +45,8 @@ export(
     "setCalendarContext",
     "addHolidays",
     "removeHolidays",
-    "nextIMMDate",
 	##--dayCounter.R
-    "dayCount",
-    "yearFraction",
-    "setEvaluationDate",
-    ##--dates.cpp
-    "advanceDate",
-    ##--discount.cpp
-    "discountFactors",
-    "forwardRates",
-    "zeroRates",
-    "referenceDate",
+    "DayCounter",
     ##--discount.R
     "DiscountCurve",
     "plot.DiscountCurve",
@@ -71,9 +61,13 @@ export(
     "BarrierOption",
     ##--schedule.R
     "Schedule",
+    ##--settings.R
+    "Settings",
     ##--utils.R
     "getQuantLibVersion",
-    "getQuantLibCapabilities"
+    "getQuantLibCapabilities",
+    ##--yieldtermstruture.R
+    "YieldTermStructure"
 )
 
 S3method("AmericanOption", "default")

@@ -118,7 +118,7 @@ FixedRateBond.default <- function(bond = list(),
     # exCouponConvention
     # exCouponEndOfMonth
     bond <- matchParams(bond)
-    
+
     # check schedule params
     if (is.null(schedule$effectiveDate)){
       stop("schedule effective date undefined.")
@@ -133,7 +133,7 @@ FixedRateBond.default <- function(bond = list(),
     if (is.null(schedule$dateGeneration)) schedule$dateGeneration <- 'Backward'
     if (is.null(schedule$endOfMonth)) schedule$endOfMonth <- 0
     schedule <- matchParams(schedule)
-    
+
     # check calc params
     if (is.null(calc$dayCounter)) calc$dayCounter <- 'ActualActual.ISMA'
     if (is.null(calc$compounding)) calc$compounding <- 'Compounded'
@@ -146,14 +146,14 @@ FixedRateBond.default <- function(bond = list(),
     which.calc <- !c(is.null(discountCurve), is.na(yield), is.na(price))
     if (sum(which.calc) != 1)
         stop("one and only one of discountCurve, yield or price must be defined.")
-    
+
     if (!is.null(discountCurve)) {
         val <- FixedRateWithRebuiltCurve(
             bond, rates, schedule, calc, c(discountCurve$table$date), discountCurve$table$zeroRates)
-      
+
     } else if (!is.na(yield)) {
       val <- FixedRateWithYield(bond, rates, schedule, calc, yield)
-      
+
     } else if (!is.na(price)) {
       val <- FixedRateWithPrice(bond, rates, schedule, calc, price)
     }
@@ -512,16 +512,16 @@ FittedBondCurve.default <- function(curveparams,
 
 # matching functions
 
-matchDayCounter <- function(daycounter = c("Actual360", "ActualFixed", "ActualActual",
+matchDayCounter <- function(daycounter = c("Actual360", "Actual365Fixed", "ActualActual",
                  "Business252", "OneDayCounter", "SimpleDayCounter", "Thirty360", "Actual365NoLeap",
                  "ActualActual.ISMA", "ActualActual.Bond", "ActualActual.ISDA", "ActualActual.Historical", "ActualActual.AFB", "ActualActual.Euro"))
 {
-  
+
      if (!is.numeric(daycounter)) {
          daycounter <- match.arg(daycounter)
          daycounter <- switch(daycounter,
                               Actual360 = 0,
-                              ActualFixed = 1,
+                              Actual365Fixed = 1,
                               ActualActual = 2,
                               Business252 = 3,
                               OneDayCounter = 4,
@@ -544,13 +544,13 @@ matchBDC <- function(bdc = c("Following", "ModifiedFollowing",
      if (!is.numeric(bdc)){
          bdc <- match.arg(bdc)
          bdc <- switch(bdc,
-                       Following = 0,
-                       ModifiedFollowing = 1,
-                       Preceding = 2,
-                       ModifiedPreceding = 3,
-                       Unadjusted = 4,
-                       HalfMonthModifiedFollowing = 5,
-                       Nearest = 6)
+                       Following = 0L,
+                       ModifiedFollowing = 1L,
+                       Preceding = 2L,
+                       ModifiedPreceding = 3L,
+                       Unadjusted = 4L,
+                       HalfMonthModifiedFollowing = 5L,
+                       Nearest = 6L)
      }
      bdc
 }
@@ -560,10 +560,10 @@ matchCompounding <- function(cp = c("Simple", "Compounded",
      if (!is.numeric(cp)){
         cp <- match.arg(cp)
         cp <- switch(cp,
-                     Simple = 0,
-                     Compounded = 1,
-                     Continuous = 2,
-                     SimpleThenCompounded = 3)
+                     Simple = 0L,
+                     Compounded = 1L,
+                     Continuous = 2L,
+                     SimpleThenCompounded = 3L)
      }
      cp
 }
@@ -575,11 +575,11 @@ matchFrequency <- function(freq = c("NoFrequency","Once", "Annual",
     if (!is.numeric(freq)){
         freq <- match.arg(freq)
         freq <- switch(freq,
-                       NoFrequency = -1, Once = 0, Annual = 1,
-                       Semiannual = 2, EveryFourthMonth = 3,
-                       Quarterly = 4, Bimonthly = 6,
-                       Monthly = 12, EveryFourthWeek = 13,
-                       Biweekly = 26, Weekly = 52, Daily = 365)
+                       NoFrequency = -1L, Once = 0L, Annual = 1L,
+                       Semiannual = 2L, EveryFourthMonth = 3L,
+                       Quarterly = 4L, Bimonthly = 6L,
+                       Monthly = 12L, EveryFourthWeek = 13L,
+                       Biweekly = 26L, Weekly = 52L, Daily = 365L)
     }
     freq
 }
@@ -592,10 +592,10 @@ matchFloatFrequency <- function(freq = c( "Annual",
     if (!is.numeric(freq)){
        freq <- match.arg(freq)
        freq <- switch(freq,
-                      Annual = 12,
-                      Semiannual = 6, EveryFourthMonth = 4,
-                      Quarterly = 3, Bimonthly = 2,
-                      Monthly = 1)
+                      Annual = 12L,
+                      Semiannual = 6L, EveryFourthMonth = 4L,
+                      Quarterly = 3L, Bimonthly = 2L,
+                      Monthly = 1L)
     }
     freq
 }
@@ -646,7 +646,7 @@ matchParams <- function(params) {
     if (!is.null(params$floatFreq)) {
         params$floatFreq <- matchFloatFrequency(params$floatFreq)
     }
-    
+
     if (!is.null(params$businessDayConvention)) {
         params$businessDayConvention <- matchBDC(params$businessDayConvention)
     }
