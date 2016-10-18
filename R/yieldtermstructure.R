@@ -54,6 +54,16 @@ YieldTermStructure <- R6Class("YieldTermStructure",
                                           setExtrapolation(private$ptr, enabled)
                                       }
                                   },
-                                  referenceDate = function() referenceDate(private$ptr)
+                                  referenceDate = function() referenceDate(private$ptr),
+                                  calendar = function() {
+                                      cal <- Calendar$new()
+                                      cal$.__enclos_env__$private$ptr <- calendar(private$ptr)
+                                      return( cal )
+                                  },
+                                  dayCounter = function() {
+                                      dc <- DayCounter$new()
+                                      dc$.__enclos_env__$private$ptr <- dayCounter(private$ptr)
+                                      return( dc )
+                                  }
                                   )
                               )
