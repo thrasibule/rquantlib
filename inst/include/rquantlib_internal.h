@@ -99,7 +99,8 @@ private:
 
 QuantLib::YieldTermStructure*
 getTermStructure(const std::string& interpWhat, const std::string& interpHow,
-                 const QuantLib::Date& settleDate,
+                 const QuantLib::Natural settlementDays,
+                 const QuantLib::Calendar& calendar,
                  const std::vector<QuantLib::ext::shared_ptr<QuantLib::RateHelper> >& curveInput,
                  QuantLib::DayCounter& dayCounter, QuantLib::Real tolerance);
 

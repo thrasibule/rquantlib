@@ -23,13 +23,7 @@ Calendar <- R6Class("Calendar",
                     public = list(
                         initialize = function(name) {
                             private$ptr <- getCalendar(name)
-                        }
-                    ),
-                    private = list(
-                        ptr = NULL
-                    ),
-                    active = list(
-                        name = function() getCalendarName(private$ptr),
+                        },
                         isBusinessDay = function(dates) {
                             isBusinessDay(private$ptr, dates)
                         },
@@ -45,12 +39,10 @@ Calendar <- R6Class("Calendar",
                         endOfMonth = function(dates) {
                             EndOfMonth(private$ptr, dates)
                         },
-                        adjust = function(dates, bdc = 0) {
-                            adjust(private$ptr, dates, bdc)
-                        },
+
                         businessDaysBetween = function(from, to,
-                                                       includeFirst = TRUE,
-                                                       includeLast = FALSE) {
+                            includeFirst = TRUE,
+                            includeLast = FALSE) {
                             businessDaysBetween(private$ptr, from, to,
                                                 includeFirst, includeLast)
                         },
@@ -87,33 +79,3 @@ Calendar <- R6Class("Calendar",
                         name = function() getCalendarName(private$ptr)
                         )
                     )
-
-advance <- function(calendar="TARGET", dates=Sys.Date(),
-                    n, timeUnit, # call 1
-                    period,      # call 2
-                    bdc = 0, emr = FALSE) {
-    stopifnot(is.character(calendar))
-    stopifnot(class(dates)=="Date")
-    call1 <- missing(period) && !missing(n) && !missing(timeUnit)
-    call2 <- !missing(period) && missing(n) && missing(timeUnit)
-    stopifnot(call1 | call2)
-    val <- NULL
-    if (call1) {
-        val <- advance1(calendar, n, timeUnit, bdc, emr, dates)
-    }
-    if (call2) {
-        val <- advance2(calendar, period, bdc, emr, dates)
-    }
-    stopifnot( !is.null(val) )
-    val
-}
-
-
-holidayList <- function(calendar="TARGET", from=Sys.Date(), to=Sys.Date() + 5, includeWeekends=FALSE) {
-    getHolidayList(calendar, from, to, includeWeekends)
-}
-
-businessDayList <- function(calendar="TARGET", from=Sys.Date(), to=Sys.Date() + 5) {
-    getBusinessDayList(calendar, from, to)
-}
-

@@ -45,18 +45,8 @@ export(
     "setCalendarContext",
     "addHolidays",
     "removeHolidays",
-    "nextIMMDate",
 	##--dayCounter.R
-    "dayCount",
-    "yearFraction",
-    "setEvaluationDate",
-    ##--dates.cpp
-    "advanceDate",
-    ##--discount.cpp
-    "discountFactors",
-    "forwardRates",
-    "zeroRates",
-    "referenceDate",
+    "DayCounter",
     ##--discount.R
     "DiscountCurve",
     "plot.DiscountCurve",
@@ -71,9 +61,13 @@ export(
     "BarrierOption",
     ##--schedule.R
     "Schedule",
+    ##--settings.R
+    "Settings",
     ##--utils.R
     "getQuantLibVersion",
-    "getQuantLibCapabilities"
+    "getQuantLibCapabilities",
+    ##--yieldtermstruture.R
+    "YieldTermStructure"
 )
 
 S3method("AmericanOption", "default")
