@@ -114,6 +114,7 @@ QuantLib::Date referenceDate(const Rcpp::XPtr<QuantLib::YieldTermStructure>& yts
 QuantLib::Date maxDate(const Rcpp::XPtr<QuantLib::YieldTermStructure>& yts) {
     return yts->maxDate();
 }
+
 // [[Rcpp::export]]
 void setExtrapolation(const Rcpp::XPtr<QuantLib::YieldTermStructure>& yts, bool enabled) {
     if(enabled) {
@@ -126,4 +127,16 @@ void setExtrapolation(const Rcpp::XPtr<QuantLib::YieldTermStructure>& yts, bool 
 // [[Rcpp::export]]
 bool allowsExtrapolation(const Rcpp::XPtr<QuantLib::YieldTermStructure>& yts) {
     return yts->allowsExtrapolation();
+}
+
+// [[Rcpp::export]]
+Rcpp::XPtr<QuantLib::Calendar> calendar(const Rcpp::XPtr<QuantLib::YieldTermStructure>& yts) {
+    QuantLib::Calendar* cal = new QuantLib::Calendar(yts->calendar());
+    return Rcpp::XPtr<QuantLib::Calendar>(cal, true);
+}
+
+// [[Rcpp::export]]
+Rcpp::XPtr<QuantLib::DayCounter> dayCounter(const Rcpp::XPtr<QuantLib::YieldTermStructure>& yts) {
+    QuantLib::DayCounter* dc = new QuantLib::DayCounter(yts->dayCounter());
+    return Rcpp::XPtr<QuantLib::DayCounter>(dc, true);
 }

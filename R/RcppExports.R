@@ -165,40 +165,60 @@ nextIMMDate <- function(day) {
     .Call(`_RQuantLib_nextIMMDate`, day)
 }
 
-advanceDate <- function(issueDate, days) {
-    .Call(`_RQuantLib_advanceDate`, issueDate, days)
+getDaycounter <- function(n) {
+    .Call(`_RQuantLib_getDaycounter`, n)
 }
 
-dayCount <- function(startDates, endDates, dayCounters) {
-    .Call(`_RQuantLib_dayCount`, startDates, endDates, dayCounters)
+getDayCounterName <- function(dc) {
+    .Call(`_RQuantLib_getDayCounterName`, dc)
 }
 
-yearFraction <- function(startDates, endDates, dayCounters) {
-    .Call(`_RQuantLib_yearFraction`, startDates, endDates, dayCounters)
+dayCount <- function(dc, startDates, endDates) {
+    .Call(`_RQuantLib_dayCount`, dc, startDates, endDates)
 }
 
-setEvaluationDate <- function(evalDate) {
-    .Call(`_RQuantLib_setEvaluationDate`, evalDate)
+yearFraction <- function(dc, startDates, endDates) {
+    .Call(`_RQuantLib_yearFraction`, dc, startDates, endDates)
 }
 
-discountCurveEngine <- function(rparams, tslist, legParams) {
-    .Call(`_RQuantLib_discountCurveEngine`, rparams, tslist, legParams)
+PiecewiseYieldCurve <- function(trait, interpolator, settlementDays, calendar, termStructureDayCounter, tslist, legParams, tolerance) {
+    .Call(`_RQuantLib_PiecewiseYieldCurve`, trait, interpolator, settlementDays, calendar, termStructureDayCounter, tslist, legParams, tolerance)
 }
 
-discountFactors <- function(yts, dates) {
-    .Call(`_RQuantLib_discountFactors`, yts, dates)
+discount <- function(yts, dates) {
+    .Call(`_RQuantLib_discount`, yts, dates)
 }
 
-zeroRates <- function(yts, dates) {
-    .Call(`_RQuantLib_zeroRates`, yts, dates)
+zeroRate <- function(yts, dates, dc, comp = 2L) {
+    .Call(`_RQuantLib_zeroRate`, yts, dates, dc, comp)
 }
 
-forwardRates <- function(yts, dates, period) {
-    .Call(`_RQuantLib_forwardRates`, yts, dates, period)
+forwardRate <- function(yts, dates, period, dc, comp = 2L) {
+    .Call(`_RQuantLib_forwardRate`, yts, dates, period, dc, comp)
 }
 
 referenceDate <- function(yts) {
     .Call(`_RQuantLib_referenceDate`, yts)
+}
+
+maxDate <- function(yts) {
+    .Call(`_RQuantLib_maxDate`, yts)
+}
+
+setExtrapolation <- function(yts, enabled) {
+    invisible(.Call(`_RQuantLib_setExtrapolation`, yts, enabled))
+}
+
+allowsExtrapolation <- function(yts) {
+    .Call(`_RQuantLib_allowsExtrapolation`, yts)
+}
+
+calendar <- function(yts) {
+    .Call(`_RQuantLib_calendar`, yts)
+}
+
+dayCounter <- function(yts) {
+    .Call(`_RQuantLib_dayCounter`, yts)
 }
 
 calibrateHullWhiteUsingCapsEngine <- function(termStrcDateVec, termStrcZeroVec, capDF, iborDateVec, iborZeroVec, iborType, evalDate) {
@@ -223,6 +243,14 @@ sabrengine <- function(rparam, legParams, dateVec, zeroVec, swaptionMat, swapLen
 
 CreateSchedule <- function(params) {
     .Call(`_RQuantLib_CreateSchedule`, params)
+}
+
+setEvaluationDate <- function(evalDate) {
+    .Call(`_RQuantLib_setEvaluationDate`, evalDate)
+}
+
+EvaluationDate <- function() {
+    .Call(`_RQuantLib_EvaluationDate`)
 }
 
 #' This function returns the QuantLib version string as encoded in the header
