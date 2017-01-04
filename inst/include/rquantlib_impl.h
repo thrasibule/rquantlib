@@ -26,30 +26,61 @@ namespace Rcpp {
 
     static const unsigned int QLtoJan1970Offset = 25569;  	// Offset to R / Unix epoch
 
-    inline unsigned int getQLtoJan1970offset(void) { return QLtoJan1970Offset; }
-
     template <> QuantLib::Date as(SEXP dtsexp) {
-        Rcpp::Date dt(dtsexp);
-        return QuantLib::Date(static_cast<int>(dt.getDate()) + QLtoJan1970Offset);
+        switch(TYPEOF(dtsexp)) {
+        case INTSXP:
+        {
+            int dt = INTEGER(dtsexp)[0];
+            return dt == NA_INTEGER ? QuantLib::Date() :
+                QuantLib::Date(dt + QLtoJan1970Offset);
+            break;
+        }
+        case REALSXP:
+        {
+            double dt = REAL(dtsexp)[0];
+            return dt == NA_REAL ? QuantLib::Date() :
+                QuantLib::Date(static_cast<int>(dt) + QLtoJan1970Offset);
+            break;
+        }
+        default:
+            stop("types needs to be Real or Integer");
+        }
     }
 
     template <> SEXP wrap(const QuantLib::Date &d) {
-        double dt = static_cast<double>(d.serialNumber()); // QL::BigInteger can cast to double
-        return Rcpp::wrap(Rcpp::Date(dt - QLtoJan1970Offset));
+        IntegerVector r = IntegerVector::create(static_cast<int>(d.serialNumber())
+            - QLtoJan1970Offset);
+        r.attr("class") = CharacterVector::create("Date");
+        return wrap(r);
     }
 
     // non-intrusive extension via template specialisation
     template <> std::vector<QuantLib::Date> as(SEXP dtvecsexp) {
-        Rcpp::DateVector dtvec(dtvecsexp);
-        int n = dtvec.size();
+        int n = Rf_length(dtvecsexp);
         std::vector<QuantLib::Date> dates(n);
-        for (int i = 0; i<n; i++){
-#if RCPP_VERSION >= Rcpp_Version(0,12,8)
-            //dates[i] = QuantLib::Date(static_cast<int>(dtvec[i]) + QLtoJan1970Offset);
-            dates[i] = QuantLib::Date(static_cast<int>(Rcpp::Date(dtvec[i]).getDate()) + QLtoJan1970Offset);
-#else
-            dates[i] = QuantLib::Date(static_cast<int>(dtvec[i].getDate()) + QLtoJan1970Offset);
-#endif
+        switch(TYPEOF(dtvecsexp)) {
+        case INTSXP:
+        {
+            int dt;
+            for (int i = 0; i < n; i++) {
+                dt = INTEGER(dtvecsexp)[i];
+                dates[i] = dt == NA_INTEGER ? QuantLib::Date() :
+                    QuantLib::Date(dt + QLtoJan1970Offset);
+            }
+            break;
+        }
+        case REALSXP:
+        {
+            double dt;
+            for (int i = 0; i < n; i++) {
+                dt = REAL(dtvecsexp)[i];
+                dates[i] = dt == NA_REAL ? QuantLib::Date() :
+                    QuantLib::Date(static_cast<int>(dt) + QLtoJan1970Offset);
+            }
+            break;
+        }
+        default:
+            stop("type needs to be Real or Integer");
         }
         return dates;
     }
@@ -57,13 +88,12 @@ namespace Rcpp {
     // non-intrusive extension via template specialisation
     template <> SEXP wrap(const std::vector<QuantLib::Date> &dvec) {
         int n = dvec.size();
-        Rcpp::DateVector dtvec(n);
-        for (int i = 0; i<n; i++) {
-            // QL::BigInteger can cast to double
-            double dt = static_cast<double>(dvec[i].serialNumber());
-            dtvec[i] = Rcpp::Date(dt - QLtoJan1970Offset);
+        IntegerVector dtvec(n);
+        for (int i = 0; i < n; i++) {
+            dtvec[i] = dvec[i].serialNumber() - QLtoJan1970Offset;
         }
-        return Rcpp::wrap(dtvec);
+        dtvec.attr("class") = CharacterVector::create("Date");
+        return wrap(dtvec);
     }
 
 }
