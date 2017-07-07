@@ -38,31 +38,13 @@ AC_PROG_CXX
 AC_DEFUN([AC_PROG_R], [AC_CHECK_PROG(R,R,yes)])
 AC_PROG_R
 
-## We no longer need to set LDFLAGS for Rcpp 0.11.0 or later,
-## and hence no longer need to check for Rscipt
-##
-## ## look for Rscript, but use the one found via R_HOME to allow for multiple installations
-## AC_DEFUN(AC_PROG_RSCRIPT, [AC_CHECK_PROG(RSCRIPT,Rscript,yes)])
-## AC_PROG_RSCRIPT
-## #AC_MSG_CHECKING([for Rscript])
-## if test x"${RSCRIPT}" == x"yes" ; then
-## #     AC_MSG_RESULT([yes])
-##      ## Rcpp compile flag providing header directory containing Rcpp.h
-##      #rcpp_cxxflags=`${R_HOME}/bin/Rscript -e 'Rcpp:::CxxFlags()'`
-##      ## link flag providing libary as well as path to library, and optionally rpath
-##      rcpp_ldflags=`${R_HOME}/bin/Rscript -e 'Rcpp:::LdFlags()'`
-##      ## now use all these
-##      #AC_SUBST([CXXFLAGS],["${CXXFLAGS} $rcpp_cxxflags"])
-##      AC_SUBST([LDFLAGS],["${LDFLAGS} $rcpp_ldflags"])
-## else
-## #    AC_MSG_RESULT([no])
-##     echo "
-##   Your installation does not appear to have Rscript installed.
-##
-##   Please make sure that you have a working and complete R installation.
-## "
-##     exit 1
-## fi
+# Next segment by Kurt
+: ${R_HOME=`R RHOME`}
+if test -z "${R_HOME}"; then
+    AC_MSG_ERROR([Could not determine R_HOME.])
+fi
+CXX=`${R_HOME}/bin/R CMD config CXX`
+CXXFLAGS=`"${R_HOME}/bin/R" CMD config CXXFLAGS`
 
 # borrowed from a check for gnome in GNU gretl: define a check for quantlib-config
 AC_DEFUN([AC_PROG_QUANTLIB], [AC_CHECK_PROG(QUANTLIB,quantlib-config,yes)])
@@ -75,18 +57,9 @@ if test x"${QUANTLIB}" = x"yes" ; then
     ##echo "Seeing ${pkg_cxxflags} ${pkg_libs} ${pkg_version}"
 
     # also test for quantlib version using result from quantlib-config --version
-    case ${pkg_version} in
-    0.*|1.0*|1.1*|1.20.*|1.21.*|1.22.*|1.23.*|1.24.*)
-	AC_MSG_WARN([RQuantLib requires QuantLib (>= 1.25).])
-	AC_MSG_ERROR([Please upgrade to a current version.])
-	;;
-    1.25.*|1.26*|1.27*|1.28*|1.29*|1.30.*|1.31.*|1.32.*|1.33.*|1.34.*)
-	echo "checking for suitable QuantLib version... version ${pkg_version} is not the most recent one. Consider upgrading."
-	;;
-    1.*)
-	echo "checking for suitable QuantLib version... yes (${pkg_version})"
-	;;
-    esac
+    AS_VERSION_COMPARE([$pkg_version], [1.25],
+        [AC_MSG_NOTICE([RQuantLib requires QuantLib (>= 1.8.0).])
+        AC_MSG_ERROR([Please upgrade to a current version.])])
 
     # now use all these
     AC_SUBST([PKG_CXXFLAGS],["${PKG_CXXFLAGS} ${pkg_cxxflags} ${gxx_newer_than_45}"])
