@@ -2,9 +2,9 @@
 #
 # Copyright 2008 - 2018  Dirk Eddelbuettel
 
-# See configure.in for how these variables are computed
-PKG_CXXFLAGS=@CXXFLAGS@ -I../inst/include -I. -DBOOST_NO_AUTO_PTR $(SHLIB_OPENMP_CXXFLAGS)
-PKG_LIBS=@LDFLAGS@ $(SHLIB_OPENMP_CXXFLAGS)
+# See configure.ac for how these variables are computed
+PKG_CXXFLAGS=@CXXFLAGS@ -I../inst/include -I. $(SHLIB_OPENMP_CFLAGS)
+PKG_LIBS=@LDFLAGS@ $(SHLIB_OPENMP_CFLAGS)
 
 # Use C++11 for long long in Boost headers
 CXX_STD=CXX11

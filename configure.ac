@@ -40,31 +40,13 @@ fi
 AC_DEFUN([AC_PROG_R], [AC_CHECK_PROG(R,R,yes)])
 AC_PROG_R
 
-## We no longer need to set LDFLAGS for Rcpp 0.11.0 or later,
-## and hence no longer need to check for Rscipt
-##
-## ## look for Rscript, but use the one found via R_HOME to allow for multiple installations
-## AC_DEFUN(AC_PROG_RSCRIPT, [AC_CHECK_PROG(RSCRIPT,Rscript,yes)])
-## AC_PROG_RSCRIPT
-## #AC_MSG_CHECKING([for Rscript])
-## if test x"${RSCRIPT}" == x"yes" ; then
-## #     AC_MSG_RESULT([yes])
-##      ## Rcpp compile flag providing header directory containing Rcpp.h
-##      #rcpp_cxxflags=`${R_HOME}/bin/Rscript -e 'Rcpp:::CxxFlags()'`
-##      ## link flag providing libary as well as path to library, and optionally rpath
-##      rcpp_ldflags=`${R_HOME}/bin/Rscript -e 'Rcpp:::LdFlags()'`
-##      ## now use all these
-##      #AC_SUBST([CXXFLAGS],["${CXXFLAGS} $rcpp_cxxflags"])
-##      AC_SUBST([LDFLAGS],["${LDFLAGS} $rcpp_ldflags"])
-## else
-## #    AC_MSG_RESULT([no])
-##     echo "
-##   Your installation does not appear to have Rscript installed.
-##
-##   Please make sure that you have a working and complete R installation.
-## "
-##     exit 1
-## fi
+# Next segment by Kurt
+: ${R_HOME=`R RHOME`}
+if test -z "${R_HOME}"; then
+    AC_MSG_ERROR([Could not determine R_HOME.])   
+fi
+CXX=`${R_HOME}/bin/R CMD config CXX`
+CXXFLAGS=`"${R_HOME}/bin/R" CMD config CXXFLAGS`
 
 # borrowed from a check for gnome in GNU gretl: define a check for quantlib-config
 AC_DEFUN([AC_PROG_QUANTLIB], [AC_CHECK_PROG(QUANTLIB,quantlib-config,yes)])
@@ -76,12 +58,9 @@ if test x"${QUANTLIB}" == x"yes" ; then
     pkg_version=`quantlib-config --version`
 
     # also test for quantlib version using result from quantlib-config --version
-    case ${pkg_version} in
-    0.1.*|0.2.*|0.3.*|0.4.*|0.8.*|0.9.*|1.0.*|1.1.*|1.2.*|1.3.*|1.4.*|1.5.*|1.6.*|1.7.*|1.8*|1.9.*|1.10.*|1.11.*|1.12.*|1.13.*)
-	AC_MSG_WARN([RQuantLib requires QuantLib (>= 1.14).])
-	AC_MSG_ERROR([Please upgrade to a current version.])
-	;;
-    esac
+    AS_VERSION_COMPARE([$pkg_version], [1.8],
+        [AC_MSG_NOTICE([RQuantLib requires QuantLib (>= 1.8.0).])
+        AC_MSG_ERROR([Please upgrade to a current version.])])
 
     # now use all these
     AC_SUBST([CXXFLAGS],["${CXXFLAGS} "])
