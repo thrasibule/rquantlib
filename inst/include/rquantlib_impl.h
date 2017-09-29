@@ -88,9 +88,9 @@ namespace Rcpp {
     // non-intrusive extension via template specialisation
     template <> SEXP wrap(const std::vector<QuantLib::Date> &dvec) {
         int n = dvec.size();
-        IntegerVector dtvec(n);
+        NumericVector dtvec(n);
         for (int i = 0; i < n; i++) {
-            dtvec[i] = dvec[i].serialNumber() - QLtoJan1970Offset;
+            dtvec[i] = static_cast<double>(dvec[i].serialNumber() - QLtoJan1970Offset);
         }
         dtvec.attr("class") = CharacterVector::create("Date");
         return wrap(dtvec);

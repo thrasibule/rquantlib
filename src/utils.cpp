@@ -182,7 +182,7 @@ QuantLib::Schedule getSchedule(Rcpp::List rparam) {
     }
     bool endOfMonth = false;
     if(rparam.containsElementNamed("endOfMonth") ) {
-        endOfMonth = (Rcpp::as<double>(rparam["endOfMonth"]) == 1) ? true : false;
+        endOfMonth = (Rcpp::as<int>(rparam["endOfMonth"]) == 1) ? true : false;
     }
 
     QuantLib::Schedule schedule(effectiveDate,
