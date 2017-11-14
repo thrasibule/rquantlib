@@ -602,13 +602,13 @@ matchFloatFrequency <- function(freq = c( "Annual",
 
 matchDateGen <- function(dg = c("Backward", "Forward", "Zero",
                                 "ThirdWednesday", "Twentieth",
-                                "TwentiethIMM", "OldCDS", "CDS")){
+                                "TwentiethIMM", "OldCDS", "CDS", "CDS2015")){
    if (!is.numeric(dg)){
       dg <- match.arg(dg)
       dg <- switch(dg,
-                   Backward = 0, Forward = 1,
-                   Zero = 2, ThirdWednesday = 3,
-                   Twentieth = 4, TwentiethIMM = 5, OldCDS=6, CDS=7)
+                   Backward = 0L, Forward = 1L,
+                   Zero = 2L, ThirdWednesday = 3L,
+                   Twentieth = 4L, TwentiethIMM = 5L, OldCDS = 6L, CDS = 7L, CDS2015 = 8L, 1)
    }
    dg
 }

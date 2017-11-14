@@ -75,7 +75,8 @@ Reference for parameters when constructing a bond
         \code{5} \tab TwentiethIMM \cr
         \code{6} \tab OldCDS \cr
         \code{7} \tab CDS \cr
-        \code{anything else} \tab TwentiethIMM
+        \code{8} \tab CDS2015 \cr
+        \code{anything else} \tab Forward 
      }
 }
 

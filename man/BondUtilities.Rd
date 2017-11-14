@@ -23,7 +23,7 @@ matchDayCounter(daycounter = c("Actual360", "ActualFixed", "ActualActual", "Busi
                               "ActualActual.ISDA", "ActualActual.Historical",
                               "ActualActual.AFB", "ActualActual.Euro"))
 matchDateGen(dg = c("Backward", "Forward", "Zero", "ThirdWednesday",
-                    "Twentieth", "TwentiethIMM", "OldCDS", "CDS"))
+                    "Twentieth", "TwentiethIMM", "OldCDS", "CDS", "CDS2015"))
 matchFrequency(freq = c("NoFrequency","Once", "Annual", "Semiannual",
                         "EveryFourthMonth", "Quarterly", "Bimonthly",
                         "Monthly", "EveryFourthWeek", "Biweekly",
