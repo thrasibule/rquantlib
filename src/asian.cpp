@@ -27,14 +27,14 @@ Rcpp::List asianOptionEngine(std::string averageType,
                              std::string type,
                              double underlying,
                              double strike,
-                             double dividendYield, 
+                             double dividendYield,
                              double riskFreeRate,
                              double maturity,
                              double volatility,
                              double first,
                              double length,
                              size_t fixings) {
-                       
+
     QuantLib::Option::Type optionType = getOptionType(type);
 
     //from test-suite/asionoptions.cpp
@@ -42,42 +42,42 @@ Rcpp::List asianOptionEngine(std::string averageType,
     QuantLib::Date today = QuantLib::Date::todaysDate();
     QuantLib::Settings::instance().evaluationDate() = today;
 
-    boost::shared_ptr<QuantLib::SimpleQuote> spot(new QuantLib::SimpleQuote(underlying));
-    boost::shared_ptr<QuantLib::SimpleQuote> qRate(new QuantLib::SimpleQuote(dividendYield));
-    boost::shared_ptr<QuantLib::YieldTermStructure> qTS = flatRate(today, qRate, dc);
-    boost::shared_ptr<QuantLib::SimpleQuote> rRate(new QuantLib::SimpleQuote(riskFreeRate));
-    boost::shared_ptr<QuantLib::YieldTermStructure> rTS = flatRate(today, rRate, dc);
-    boost::shared_ptr<QuantLib::SimpleQuote> vol(new QuantLib::SimpleQuote(volatility));
-    boost::shared_ptr<QuantLib::BlackVolTermStructure> volTS = flatVol(today, vol, dc);
-        
-    boost::shared_ptr<QuantLib::BlackScholesMertonProcess>
+    QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> spot = QuantLib::ext::make_shared<QuantLib::SimpleQuote>(underlying);
+    QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> qRate = QuantLib::ext::make_shared<QuantLib::SimpleQuote>(dividendYield);
+    QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure> qTS = flatRate(today, qRate, dc);
+    QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> rRate = QuantLib::ext::make_shared<QuantLib::SimpleQuote>(riskFreeRate);
+    QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure> rTS = flatRate(today, rRate, dc);
+    QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> vol = QuantLib::ext::make_shared<QuantLib::SimpleQuote>(volatility);
+    QuantLib::ext::shared_ptr<QuantLib::BlackVolTermStructure> volTS = flatVol(today, vol, dc);
+
+    QuantLib::ext::shared_ptr<QuantLib::BlackScholesMertonProcess>
         stochProcess(new
                      QuantLib::BlackScholesMertonProcess(QuantLib::Handle<QuantLib::Quote>(spot),
                                                          QuantLib::Handle<QuantLib::YieldTermStructure>(qTS),
                                                          QuantLib::Handle<QuantLib::YieldTermStructure>(rTS),
                                                          QuantLib::Handle<QuantLib::BlackVolTermStructure>(volTS)));
 
-    boost::shared_ptr<QuantLib::StrikedTypePayoff> 
+    QuantLib::ext::shared_ptr<QuantLib::StrikedTypePayoff>
         payoff(new QuantLib::PlainVanillaPayoff(optionType,strike));
 
     Rcpp::List rl = R_NilValue;
-   
+
     if (averageType=="geometric"){
-        boost::shared_ptr<QuantLib::PricingEngine> 
+        QuantLib::ext::shared_ptr<QuantLib::PricingEngine>
             engine(new
                    QuantLib::AnalyticContinuousGeometricAveragePriceAsianEngine(stochProcess));
-            
-#ifdef QL_HIGH_RESOLUTION_DATE    
+
+#ifdef QL_HIGH_RESOLUTION_DATE
         // in minutes
         QuantLib::Date exDate(today.dateTime() + boost::posix_time::minutes(boost::uint64_t(maturity * 360 * 24 * 60)));
 #else
         QuantLib::Date exDate = today + int(maturity * 360 + 0.5);
-#endif                              
-        boost::shared_ptr<QuantLib::Exercise> exercise(new QuantLib::EuropeanExercise(exDate));
+#endif
+        QuantLib::ext::shared_ptr<QuantLib::Exercise> exercise(new QuantLib::EuropeanExercise(exDate));
         QuantLib::ContinuousAveragingAsianOption option(QuantLib::Average::Geometric,
                                                         payoff, exercise);
         option.setPricingEngine(engine);
-            
+
         rl = Rcpp::List::create(Rcpp::Named("value") = option.NPV(),
                                 Rcpp::Named("delta") = option.delta(),
                                 Rcpp::Named("gamma") = option.gamma(),
@@ -85,7 +85,7 @@ Rcpp::List asianOptionEngine(std::string averageType,
                                 Rcpp::Named("theta") = option.theta(),
                                 Rcpp::Named("rho") = option.rho(),
                                 Rcpp::Named("divRho") = option.dividendRho());
-            
+
     } else if (averageType=="arithmetic") {
 
         // TODO:  check fixings > 1, first, length
@@ -93,16 +93,16 @@ Rcpp::List asianOptionEngine(std::string averageType,
         if (length < 0) Rcpp::stop("Parameter 'length' must be non-negative.");
         if (fixings <= 1) Rcpp::stop("Parameter 'fixings' must be larger than one.");
 
-        boost::shared_ptr<QuantLib::PricingEngine> engine =
+        QuantLib::ext::shared_ptr<QuantLib::PricingEngine> engine =
             QuantLib::MakeMCDiscreteArithmeticAPEngine<QuantLib::LowDiscrepancy>(stochProcess)
             .withSamples(2047)
             .withControlVariate();
-            
-        //boost::shared_ptr<PricingEngine> engine =
+
+        //QuantLib::ext::shared_ptr<PricingEngine> engine =
         //    MakeMCDiscreteArithmeticASEngine<LowDiscrepancy>(stochProcess)
         //    .withSeed(3456789)
         //    .withSamples(1023);
-            
+
         QuantLib::Time dt = length / (fixings - 1);
 
         std::vector<QuantLib::Time> timeIncrements(fixings);
@@ -115,19 +115,19 @@ Rcpp::List asianOptionEngine(std::string averageType,
             fixingDates[i]= QuantLib::Date(today.dateTime() + boost::posix_time::minutes(boost::uint64_t(timeIncrements[i] * 360 * 24 * 60)));
 #else            
             fixingDates[i] = today + QuantLib::Integer(timeIncrements[i]*360+0.5);
-#endif           
+#endif
         }
         QuantLib::Real runningSum = 0.0;
         QuantLib::Size pastFixing = 0;
 
-        boost::shared_ptr<QuantLib::Exercise> 
+        QuantLib::ext::shared_ptr<QuantLib::Exercise>
             exercise(new QuantLib::EuropeanExercise(fixingDates[fixings-1]));
 
-        QuantLib::DiscreteAveragingAsianOption option(QuantLib::Average::Arithmetic, 
+        QuantLib::DiscreteAveragingAsianOption option(QuantLib::Average::Arithmetic,
                                                       runningSum,
-                                                      pastFixing, 
+                                                      pastFixing,
                                                       fixingDates,
-                                                      payoff, 
+                                                      payoff,
                                                       exercise);
         option.setPricingEngine(engine);
         rl = Rcpp::List::create(Rcpp::Named("value") = option.NPV(),

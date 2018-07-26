@@ -59,7 +59,7 @@ Rcpp::List discountCurveEngine(Rcpp::List rparams,
     // ActualActual::ISDA ensures that 30 years is 30.0
     QuantLib::DayCounter termStructureDayCounter = QuantLib::ActualActual(QuantLib::ActualActual::ISDA);
     double tolerance = 1.0e-8;
-    boost::shared_ptr<QuantLib::YieldTermStructure> curve;
+    QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure> curve;
     
     if (firstQuoteName.compare("flat") == 0) {            // Create a flat term structure.
         double rateQuote = Rcpp::as<double>(tslist[0]);
@@ -67,11 +67,11 @@ Rcpp::List discountCurveEngine(Rcpp::List rparams,
         //boost::shared_ptr<FlatForward> ts(new FlatForward(settlementDate,
         //                        Handle<Quote>(flatRate),
         //                        ActualActual()));
-        boost::shared_ptr<QuantLib::SimpleQuote> rRate(new QuantLib::SimpleQuote(rateQuote));
+        QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> rRate = QuantLib::ext::make_shared<QuantLib::SimpleQuote>(rateQuote);
         curve = flatRate(settlementDate,rRate,QuantLib::ActualActual());
         
     } else {             // Build curve based on a set of observed rates and/or prices.
-        std::vector<boost::shared_ptr<QuantLib::RateHelper> > curveInput;
+        std::vector<QuantLib::ext::shared_ptr<QuantLib::RateHelper> > curveInput;
 
         // For general swap inputs, not elegant but necessary to pass to getRateHelper()
         double fixDayCount = Rcpp::as<double>(legParams["dayCounter"]);
@@ -82,15 +82,15 @@ Rcpp::List discountCurveEngine(Rcpp::List rparams,
         for(i = 0; i < tslist.size(); i++) {
             std::string name = tsNames[i];
             double val = Rcpp::as<double>(tslist[i]);
-            boost::shared_ptr<QuantLib::RateHelper> rh =
-                ObservableDB::instance().getRateHelper(name, val, fixDayCount,fixFreq, floatFreq);
-            // edd 2009-11-01 FIXME NULL_RateHelper no longer builds under 0.9.9
-            // if (rh == NULL_RateHelper)
+            QuantLib::ext::shared_ptr<QuantLib::RateHelper> rh =
+                ObservableDB::instance().getRateHelper(name, val,
+                                                       fixDayCount,
+                                                       fixFreq, floatFreq);
             if (rh.get() == NULL)
                 throw std::range_error("Unknown rate in getRateHelper");
             curveInput.push_back(rh);
         }
-        boost::shared_ptr<QuantLib::YieldTermStructure> 
+        QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure> 
             ts = getTermStructure(interpWhat, interpHow, settlementDate, 
                                   curveInput, termStructureDayCounter, tolerance);
         curve = ts;

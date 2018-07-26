@@ -27,13 +27,13 @@ Rcpp::List binaryOptionEngine(std::string binType,
                               std::string excType,
                               double underlying,
                               double strike,
-                              double dividendYield, 
+                              double dividendYield,
                               double riskFreeRate,
                               double maturity,
                               double volatility,
                               double cashPayoff) {
 
-#ifdef QL_HIGH_RESOLUTION_DATE    
+#ifdef QL_HIGH_RESOLUTION_DATE
     // in minutes
     boost::posix_time::time_duration length = boost::posix_time::minutes(boost::uint64_t(maturity * 360 * 24 * 60)); 
 #else
@@ -48,23 +48,23 @@ Rcpp::List binaryOptionEngine(std::string binType,
     QuantLib::Settings::instance().evaluationDate() = today;
 
     QuantLib::DayCounter dc = QuantLib::Actual360();
-    boost::shared_ptr<QuantLib::SimpleQuote> spot(new QuantLib::SimpleQuote(underlying));
-    boost::shared_ptr<QuantLib::SimpleQuote> qRate(new QuantLib::SimpleQuote(dividendYield));
-    boost::shared_ptr<QuantLib::YieldTermStructure> qTS = flatRate(today,qRate,dc);
-    boost::shared_ptr<QuantLib::SimpleQuote> rRate(new QuantLib::SimpleQuote(riskFreeRate));
-    boost::shared_ptr<QuantLib::YieldTermStructure> rTS = flatRate(today,rRate,dc);
-    boost::shared_ptr<QuantLib::SimpleQuote> vol(new QuantLib::SimpleQuote(volatility));
-    boost::shared_ptr<QuantLib::BlackVolTermStructure> volTS = flatVol(today, vol, dc);
+    QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> spot = QuantLib::ext::make_shared<QuantLib::SimpleQuote>(underlying);
+    QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> qRate = QuantLib::ext::make_shared<QuantLib::SimpleQuote>(dividendYield);
+    QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure> qTS = flatRate(today, qRate, dc);
+    QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> rRate = QuantLib::ext::make_shared<QuantLib::SimpleQuote>(riskFreeRate);
+    QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure> rTS = flatRate(today, rRate, dc);
+    QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> vol = QuantLib::ext::make_shared<QuantLib::SimpleQuote>(volatility);
+    QuantLib::ext::shared_ptr<QuantLib::BlackVolTermStructure> volTS = flatVol(today, vol, dc);
 
-    boost::shared_ptr<QuantLib::StrikedTypePayoff> payoff;
+    QuantLib::ext::shared_ptr<QuantLib::StrikedTypePayoff> payoff;
     if (binType=="cash") {
-        boost::shared_ptr<QuantLib::StrikedTypePayoff> con(new QuantLib::CashOrNothingPayoff(optionType, strike, cashPayoff));
+        QuantLib::ext::shared_ptr<QuantLib::StrikedTypePayoff> con(new QuantLib::CashOrNothingPayoff(optionType, strike, cashPayoff));
         payoff = con;
     } else if (binType=="asset") {
-        boost::shared_ptr<QuantLib::StrikedTypePayoff> aon(new QuantLib::AssetOrNothingPayoff(optionType, strike));
+        QuantLib::ext::shared_ptr<QuantLib::StrikedTypePayoff> aon(new QuantLib::AssetOrNothingPayoff(optionType, strike));
         payoff = aon;
     } else if (binType=="gap") {
-        boost::shared_ptr<QuantLib::StrikedTypePayoff> gap(new QuantLib::GapPayoff(optionType, strike, cashPayoff));
+        QuantLib::ext::shared_ptr<QuantLib::StrikedTypePayoff> gap(new QuantLib::GapPayoff(optionType, strike, cashPayoff));
         payoff = gap;
     } else {
         throw std::range_error("Unknown binary option type " + binType);
@@ -74,31 +74,27 @@ Rcpp::List binaryOptionEngine(std::string binType,
     QuantLib::Date exDate(today.dateTime() + length);
 #else
     QuantLib::Date exDate = today + length;
-#endif    
-    boost::shared_ptr<QuantLib::Exercise> exercise;
+#endif
+    QuantLib::ext::shared_ptr<QuantLib::Exercise> exercise;
     if (excType=="american") {
-        boost::shared_ptr<QuantLib::Exercise> amEx(new QuantLib::AmericanExercise(today, exDate));
-        exercise = amEx;
+        exercise = QuantLib::ext::make_shared<QuantLib::AmericanExercise>(today, exDate);
     } else if (excType=="european") {
-        boost::shared_ptr<QuantLib::Exercise> euEx(new QuantLib::EuropeanExercise(exDate));
-        exercise = euEx;
+        exercise = QuantLib::ext::make_shared<QuantLib::EuropeanExercise>(exDate);
     } else {
         throw std::range_error("Unknown binary exercise type " + excType);
     }
 
-    boost::shared_ptr<QuantLib::BlackScholesMertonProcess> 
-        stochProcess(new QuantLib::BlackScholesMertonProcess(QuantLib::Handle<QuantLib::Quote>(spot),
-                                                             QuantLib::Handle<QuantLib::YieldTermStructure>(qTS),
-                                                             QuantLib::Handle<QuantLib::YieldTermStructure>(rTS),
-                                                             QuantLib::Handle<QuantLib::BlackVolTermStructure>(volTS)));
+    QuantLib::ext::shared_ptr<QuantLib::BlackScholesMertonProcess> stochProcess = QuantLib::ext::make_shared<QuantLib::BlackScholesMertonProcess>(
+        QuantLib::Handle<QuantLib::Quote>(spot),
+        QuantLib::Handle<QuantLib::YieldTermStructure>(qTS),
+        QuantLib::Handle<QuantLib::YieldTermStructure>(rTS),
+        QuantLib::Handle<QuantLib::BlackVolTermStructure>(volTS));
 
-    boost::shared_ptr<QuantLib::PricingEngine> engine;
+    QuantLib::ext::shared_ptr<QuantLib::PricingEngine> engine;
     if (excType=="american") {
-        boost::shared_ptr<QuantLib::PricingEngine> amEng(new QuantLib::AnalyticDigitalAmericanEngine(stochProcess));
-        engine = amEng;
+        engine = QuantLib::ext::make_shared<QuantLib::AnalyticDigitalAmericanEngine>(stochProcess);
     } else if (excType=="european") {
-        boost::shared_ptr<QuantLib::PricingEngine> euEng(new QuantLib::AnalyticEuropeanEngine(stochProcess));
-        engine = euEng;
+        engine = QuantLib::ext::make_shared<QuantLib::AnalyticEuropeanEngine>(stochProcess);
     } else {
         throw std::range_error("Unknown binary exercise type " + excType);
     }
@@ -123,13 +119,13 @@ double binaryOptionImpliedVolatilityEngine(std::string type,
                                            double value,
                                            double underlying,
                                            double strike,
-                                           double dividendYield, 
+                                           double dividendYield,
                                            double riskFreeRate,
                                            double maturity,
                                            double volatility,
                                            double cashPayoff) {
 
-#ifdef QL_HIGH_RESOLUTION_DATE    
+#ifdef QL_HIGH_RESOLUTION_DATE
     // in minutes
     boost::posix_time::time_duration length = boost::posix_time::minutes(boost::uint64_t(maturity * 360 * 24 * 60)); 
 #else
@@ -138,37 +134,37 @@ double binaryOptionImpliedVolatilityEngine(std::string type,
 
     QuantLib::Option::Type optionType = getOptionType(type);
 
-    // updated again for QuantLib 0.9.0, 
+    // updated again for QuantLib 0.9.0,
     // cf QuantLib-0.9.0/test-suite/digitaloption.cpp
     QuantLib::Date today = QuantLib::Date::todaysDate();
     QuantLib::Settings::instance().evaluationDate() = today;
     QuantLib::DayCounter dc = QuantLib::Actual360();
-    boost::shared_ptr<QuantLib::SimpleQuote> spot(new QuantLib::SimpleQuote(underlying));
-    boost::shared_ptr<QuantLib::SimpleQuote> qRate(new QuantLib::SimpleQuote(dividendYield));
-    boost::shared_ptr<QuantLib::YieldTermStructure> qTS = flatRate(today, qRate, dc);
-    boost::shared_ptr<QuantLib::SimpleQuote> rRate(new QuantLib::SimpleQuote(riskFreeRate));
-    boost::shared_ptr<QuantLib::YieldTermStructure> rTS = flatRate(today, rRate, dc);
-    boost::shared_ptr<QuantLib::SimpleQuote> vol(new QuantLib::SimpleQuote(volatility));
-    boost::shared_ptr<QuantLib::BlackVolTermStructure> volTS = flatVol(today, vol, dc);
+    QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> spot = QuantLib::ext::make_shared<QuantLib::SimpleQuote>(underlying);
+    QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> qRate = QuantLib::ext::make_shared<QuantLib::SimpleQuote>(dividendYield);
+    QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure> qTS = flatRate(today, qRate, dc);
+    QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> rRate = QuantLib::ext::make_shared<QuantLib::SimpleQuote>(riskFreeRate);
+    QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure> rTS = flatRate(today, rRate, dc);
+    QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> vol = QuantLib::ext::make_shared<QuantLib::SimpleQuote>(volatility);
+    QuantLib::ext::shared_ptr<QuantLib::BlackVolTermStructure> volTS = flatVol(today, vol, dc);
     
-    boost::shared_ptr<QuantLib::StrikedTypePayoff> 
+    QuantLib::ext::shared_ptr<QuantLib::StrikedTypePayoff>
         payoff(new QuantLib::CashOrNothingPayoff(optionType, strike, cashPayoff));
 
 #ifdef QL_HIGH_RESOLUTION_DATE
     QuantLib::Date exDate(today.dateTime() + length);
 #else
     QuantLib::Date exDate = today + length;
-#endif    
-    
-    boost::shared_ptr<QuantLib::Exercise> exercise(new QuantLib::EuropeanExercise(exDate));
+#endif
 
-    boost::shared_ptr<QuantLib::BlackScholesMertonProcess> 
+    QuantLib::ext::shared_ptr<QuantLib::Exercise> exercise(new QuantLib::EuropeanExercise(exDate));
+
+    QuantLib::ext::shared_ptr<QuantLib::BlackScholesMertonProcess>
         stochProcess(new QuantLib::BlackScholesMertonProcess(QuantLib::Handle<QuantLib::Quote>(spot),
                                                              QuantLib::Handle<QuantLib::YieldTermStructure>(qTS),
                                                              QuantLib::Handle<QuantLib::YieldTermStructure>(rTS),
                                                              QuantLib::Handle<QuantLib::BlackVolTermStructure>(volTS)));
-    //boost::shared_ptr<PricingEngine> engine(new AnalyticEuropeanEngine(stochProcess));
-    boost::shared_ptr<QuantLib::PricingEngine> engine(new QuantLib::AnalyticBarrierEngine(stochProcess));
+    //QuantLib::ext::shared_ptr<PricingEngine> engine(new AnalyticEuropeanEngine(stochProcess));
+    QuantLib::ext::shared_ptr<QuantLib::PricingEngine> engine(new QuantLib::AnalyticBarrierEngine(stochProcess));
 
     QuantLib::VanillaOption opt(payoff, exercise);
     opt.setPricingEngine(engine);
@@ -181,20 +177,20 @@ Rcpp::List barrierOptionEngine(std::string barrType,
                                std::string type,
                                double underlying,
                                double strike,
-                               double dividendYield, 
+                               double dividendYield,
                                double riskFreeRate,
                                double maturity,
                                double volatility,
-                               double barrier, 
+                               double barrier,
                                double rebate) {
 
-#ifdef QL_HIGH_RESOLUTION_DATE    
+#ifdef QL_HIGH_RESOLUTION_DATE
     // in minutes
     boost::posix_time::time_duration length = boost::posix_time::minutes(boost::uint64_t(maturity * 360 * 24 * 60)); 
 #else
     int length = int(maturity*360 + 0.5); // FIXME: this could be better
 #endif
-        
+
     QuantLib::Barrier::Type barrierType = QuantLib::Barrier::DownIn;
     if (barrType=="downin") {
         barrierType = QuantLib::Barrier::DownIn;
@@ -211,30 +207,30 @@ Rcpp::List barrierOptionEngine(std::string barrType,
     QuantLib::Option::Type optionType = getOptionType(type);
 
     // new QuantLib 0.3.5 framework, updated for 0.3.7
-    // updated again for QuantLib 0.9.0, 
+    // updated again for QuantLib 0.9.0,
     // cf QuantLib-0.9.0/test-suite/barrieroption.cpp
     QuantLib::Date today = QuantLib::Date::todaysDate();
     QuantLib::Settings::instance().evaluationDate() = today;
     QuantLib::DayCounter dc = QuantLib::Actual360();
-    boost::shared_ptr<QuantLib::SimpleQuote> spot(new QuantLib::SimpleQuote(underlying));
-    boost::shared_ptr<QuantLib::SimpleQuote> qRate(new QuantLib::SimpleQuote(dividendYield));
-    boost::shared_ptr<QuantLib::YieldTermStructure> qTS = flatRate(today, qRate, dc);
-    boost::shared_ptr<QuantLib::SimpleQuote> rRate(new QuantLib::SimpleQuote(riskFreeRate));
-    boost::shared_ptr<QuantLib::YieldTermStructure> rTS = flatRate(today,rRate,dc);
-    boost::shared_ptr<QuantLib::SimpleQuote> vol(new QuantLib::SimpleQuote(volatility));
-    boost::shared_ptr<QuantLib::BlackVolTermStructure> volTS = flatVol(today, vol, dc);
+    QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> spot = QuantLib::ext::make_shared<QuantLib::SimpleQuote>(underlying);
+    QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> qRate = QuantLib::ext::make_shared<QuantLib::SimpleQuote>(dividendYield);
+    QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure> qTS = flatRate(today, qRate, dc);
+    QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> rRate = QuantLib::ext::make_shared<QuantLib::SimpleQuote>(riskFreeRate);
+    QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure> rTS = flatRate(today, rRate, dc);
+    QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> vol = QuantLib::ext::make_shared<QuantLib::SimpleQuote>(volatility);
+    QuantLib::ext::shared_ptr<QuantLib::BlackVolTermStructure> volTS = flatVol(today, vol, dc);
 
 #ifdef QL_HIGH_RESOLUTION_DATE
     QuantLib::Date exDate(today.dateTime() + length);
 #else
     QuantLib::Date exDate = today + length;
-#endif    
-    
-    boost::shared_ptr<QuantLib::Exercise> exercise(new QuantLib::EuropeanExercise(exDate));
-        
-    boost::shared_ptr<QuantLib::StrikedTypePayoff> payoff(new QuantLib::PlainVanillaPayoff(optionType, strike));
-    
-    boost::shared_ptr<QuantLib::BlackScholesMertonProcess> 
+#endif
+
+    QuantLib::ext::shared_ptr<QuantLib::Exercise> exercise(new QuantLib::EuropeanExercise(exDate));
+
+    QuantLib::ext::shared_ptr<QuantLib::StrikedTypePayoff> payoff(new QuantLib::PlainVanillaPayoff(optionType, strike));
+
+    QuantLib::ext::shared_ptr<QuantLib::BlackScholesMertonProcess>
         stochProcess(new QuantLib::BlackScholesMertonProcess(QuantLib::Handle<QuantLib::Quote>(spot),
                                                              QuantLib::Handle<QuantLib::YieldTermStructure>(qTS),
                                                              QuantLib::Handle<QuantLib::YieldTermStructure>(rTS),
@@ -248,7 +244,7 @@ Rcpp::List barrierOptionEngine(std::string barrType,
     // Size maxSamples = 1000000;
     // bool isBiased = false;
 
-    boost::shared_ptr<QuantLib::PricingEngine> engine(new QuantLib::AnalyticBarrierEngine(stochProcess));
+    QuantLib::ext::shared_ptr<QuantLib::PricingEngine> engine(new QuantLib::AnalyticBarrierEngine(stochProcess));
 
     // need to explicitly reference BarrierOption from QuantLib here
     QuantLib::BarrierOption barrierOption(barrierType,

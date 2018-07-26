@@ -24,6 +24,7 @@
 #include <ql/quantlib.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
+#include <ql/shared_ptr.hpp>
 
 //using namespace QuantLib;
 
@@ -98,37 +99,37 @@ typedef std::map<std::string, RQLObservable*>::const_iterator RQLMapIterator;
 class ObservableDB : public QuantLib::Singleton<ObservableDB> {
 public:
     ObservableDB();
-    boost::shared_ptr<QuantLib::RateHelper> getRateHelper(std::string& ticker, QuantLib::Rate r);   // original rate helper
+    QuantLib::ext::shared_ptr<QuantLib::RateHelper> getRateHelper(std::string& ticker, QuantLib::Rate r);   // original rate helper
     // modded rate helper to allow variable daycount and frequencies in curve building
-    boost::shared_ptr<QuantLib::RateHelper> getRateHelper(std::string& ticker, QuantLib::Rate r, double fixDayCount, double fixFreq, int floatIndex);
+    QuantLib::ext::shared_ptr<QuantLib::RateHelper> getRateHelper(std::string& ticker, QuantLib::Rate r, double fixDayCount, double fixFreq, int floatIndex);
 private:
     RQLMap db_;
 };
 
-boost::shared_ptr<QuantLib::YieldTermStructure> 
-getTermStructure(std::string& interpWhat, std::string& interpHow, 
+QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure> 
+getTermStructure(const std::string& interpWhat, const std::string& interpHow, 
                  const QuantLib::Date& settleDate,
-                 const std::vector<boost::shared_ptr<QuantLib::RateHelper> >& curveInput,
+                 const std::vector<QuantLib::ext::shared_ptr<QuantLib::RateHelper> >& curveInput,
                  QuantLib::DayCounter& dayCounter, QuantLib::Real tolerance);
 
-boost::shared_ptr<QuantLib::YieldTermStructure>
+QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure>
 makeFlatCurve(const QuantLib::Date& today,
-              const boost::shared_ptr<QuantLib::Quote>& forward,
+              const QuantLib::ext::shared_ptr<QuantLib::Quote>& forward,
               const QuantLib::DayCounter& dc);
 
-boost::shared_ptr<QuantLib::YieldTermStructure>
+QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure>
 flatRate(const QuantLib::Date& today,
-         const boost::shared_ptr<QuantLib::Quote>& forward,
+         const QuantLib::ext::shared_ptr<QuantLib::Quote>& forward,
          const QuantLib::DayCounter& dc);
 
-boost::shared_ptr<QuantLib::BlackVolTermStructure> 
+QuantLib::ext::shared_ptr<QuantLib::BlackVolTermStructure> 
 makeFlatVolatility(const QuantLib::Date& today,
-                   const boost::shared_ptr<QuantLib::Quote>& vol,
+                   const QuantLib::ext::shared_ptr<QuantLib::Quote>& vol,
                    QuantLib::DayCounter dc);
 
-boost::shared_ptr<QuantLib::BlackVolTermStructure>
+QuantLib::ext::shared_ptr<QuantLib::BlackVolTermStructure>
 flatVol(const QuantLib::Date& today,
-        const boost::shared_ptr<QuantLib::Quote>& vol,
+        const QuantLib::ext::shared_ptr<QuantLib::Quote>& vol,
         const QuantLib::DayCounter& dc);
 
 enum EngineType {Analytic,
@@ -138,22 +139,22 @@ enum EngineType {Analytic,
 
 enum optionType { European = 0, American };
 
-boost::shared_ptr<QuantLib::VanillaOption>
-makeOption(const boost::shared_ptr<QuantLib::StrikedTypePayoff>& payoff,
-           const boost::shared_ptr<QuantLib::Exercise>& exercise,
-           const boost::shared_ptr<QuantLib::Quote>& u,
-           const boost::shared_ptr<QuantLib::YieldTermStructure>& q,
-           const boost::shared_ptr<QuantLib::YieldTermStructure>& r,
-           const boost::shared_ptr<QuantLib::BlackVolTermStructure>& vol,
+QuantLib::ext::shared_ptr<QuantLib::VanillaOption>
+makeOption(const QuantLib::ext::shared_ptr<QuantLib::StrikedTypePayoff>& payoff,
+           const QuantLib::ext::shared_ptr<QuantLib::Exercise>& exercise,
+           const QuantLib::ext::shared_ptr<QuantLib::Quote>& u,
+           const QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure>& q,
+           const QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure>& r,
+           const QuantLib::ext::shared_ptr<QuantLib::BlackVolTermStructure>& vol,
            EngineType engineType = Analytic,
            QuantLib::Size binomialSteps=128,
            QuantLib::Size samples=100); 
 
-boost::shared_ptr<QuantLib::GeneralizedBlackScholesProcess>
-makeProcess(const boost::shared_ptr<QuantLib::Quote>& u,
-            const boost::shared_ptr<QuantLib::YieldTermStructure>& q,
-            const boost::shared_ptr<QuantLib::YieldTermStructure>& r,
-            const boost::shared_ptr<QuantLib::BlackVolTermStructure>& vol);
+QuantLib::ext::shared_ptr<QuantLib::GeneralizedBlackScholesProcess>
+makeProcess(const QuantLib::ext::shared_ptr<QuantLib::Quote>& u,
+            const QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure>& q,
+            const QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure>& r,
+            const QuantLib::ext::shared_ptr<QuantLib::BlackVolTermStructure>& vol);
 
 // int dateFromR(const RcppDate &d);    // using 'classic' API's RcppDate 
 int dateFromR(const Rcpp::Date &d); // using 'new' API's Rcpp::Date
@@ -166,18 +167,18 @@ QuantLib::Compounding getCompounding(const double n);
 QuantLib::BusinessDayConvention getBusinessDayConvention(const double n);
 QuantLib::DayCounter getDayCounter(const double n);
 QuantLib::DateGeneration::Rule getDateGenerationRule(const double n);
-boost::shared_ptr<QuantLib::YieldTermStructure> buildTermStructure(Rcpp::List params, Rcpp::List);
+QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure> buildTermStructure(Rcpp::List params, Rcpp::List);
 QuantLib::Schedule getSchedule(Rcpp::List rparam);
-boost::shared_ptr<QuantLib::FixedRateBond> getFixedRateBond(Rcpp::List bondparam, std::vector<double> ratesVec, Rcpp::List scheduleparam);
+QuantLib::ext::shared_ptr<QuantLib::FixedRateBond> getFixedRateBond(Rcpp::List bondparam, std::vector<double> ratesVec, Rcpp::List scheduleparam);
 //boost::shared_ptr<QuantLib::IborIndex> getIborIndex(Rcpp::List index, const QuantLib::Date today);////****** ??
 //boost::shared_ptr<QuantLib::IborIndex> getIborIndex(std:string type);////****** ??
 
 // deprecated  std::vector<double> getDoubleVector(SEXP vector);
-boost::shared_ptr<QuantLib::YieldTermStructure> getFlatCurve(Rcpp::List flatcurve);
+QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure> getFlatCurve(Rcpp::List flatcurve);
 //boost::shared_ptr<QuantLib::YieldTermStructure> rebuildCurveFromZeroRates(SEXP dateSexp, SEXP zeroSexp);
-boost::shared_ptr<QuantLib::YieldTermStructure> rebuildCurveFromZeroRates(std::vector<QuantLib::Date> dates, std::vector<double> zeros);
+QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure> rebuildCurveFromZeroRates(std::vector<QuantLib::Date> dates, std::vector<double> zeros);
 
-boost::shared_ptr<QuantLib::IborIndex> 
+QuantLib::ext::shared_ptr<QuantLib::IborIndex> 
 buildIborIndex(std::string type,
                const QuantLib::Handle<QuantLib::YieldTermStructure>& iborStrc);
 //QuantLib::Calendar* getCalendar(SEXP calParameters);
