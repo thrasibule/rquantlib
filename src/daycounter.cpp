@@ -37,7 +37,7 @@ Rcpp::XPtr<QuantLib::DayCounter> getDaycounter(const int n) {
     else if (n==6)
         dc = new QuantLib::Thirty360();
     else if (n==7)
-        dc = new QuantLib::Actual365NoLeap();
+        dc = new QuantLib::Actual365Fixed(QuantLib::Actual365Fixed::NoLeap);
     else if (n==8)
         dc = new QuantLib::ActualActual(QuantLib::ActualActual::ISMA);
     else if (n==9)

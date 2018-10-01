@@ -343,10 +343,8 @@ QuantLib::DayCounter getDayCounter(const int n){
         return QuantLib::SimpleDayCounter();
     else if (n==6)
         return QuantLib::Thirty360();
-#ifdef RQUANTLIB_USE_ACTUAL365NOLEAP
-     else if (n==7)
-         return QuantLib::Actual365NoLeap();
-#endif
+    else if (n==7)
+        return QuantLib::Actual365Fixed(QuantLib::Actual365Fixed::NoLeap);
     else if (n==8)
         return QuantLib::ActualActual(QuantLib::ActualActual::ISMA);
     else if (n==9)

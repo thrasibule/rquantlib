@@ -154,7 +154,6 @@ Rcpp::List affineWithRebuiltCurveEngine(Rcpp::List rparam,
     // List of times that have to be included in the timegrid
     std::list<QuantLib::Time> times;
     for (i=0; i<(QuantLib::Size)numRows; i++) {
-        //boost::shared_ptr<QuantLib::Quote> vol(new QuantLib::SimpleQuote(swaptionVols[i][numCols-i-1]));
         QuantLib::ext::shared_ptr<QuantLib::Quote> vol = QuantLib::ext::make_shared<QuantLib::SimpleQuote>(swaptionVols(i));
         swaptions.push_back(QuantLib::ext::make_shared<QuantLib::SwaptionHelper>(swaptionMaturities[i],
                                                                        QuantLib::Period(swapLengths[i], QuantLib::Years),
