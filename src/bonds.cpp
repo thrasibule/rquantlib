@@ -228,6 +228,8 @@ Rcpp::List FloatingBond(Rcpp::List rparam,
             boost::shared_ptr<QuantLib::IborIndex> 
                 temp(new QuantLib::USDLibor(length * QuantLib::Years, index));
             iborindex = temp;
+        } else {
+            ::Rf_error("inTermOf needs to be either 'Months' or 'Years'");
         }
     }
     //build the bond
