@@ -198,6 +198,6 @@ tsQuotes <- list(d1w  =0.0382,
 discountCurve.flat <- DiscountCurve(params, list(flat=0.05))
 termstructure <- DiscountCurve(params, list(flat=0.03))
 iborIndex.params <- list(type="USDLibor", length=6,
-                         inTermOf="Month", term=termstructure)
+                         inTermOf="Months", term=termstructure)
 FloatingRateBond(bond, gearings, spreads, caps, floors,
                  iborIndex.params, discountCurve.flat, dateparams)

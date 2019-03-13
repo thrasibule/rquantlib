@@ -221,6 +221,8 @@ Rcpp::List FloatingBond(Rcpp::List rparam,
             iborindex = QuantLib::ext::make_shared<QuantLib::USDLibor>(length * QuantLib::Months, index);
         } else if (inTermOf=="Years") {
             iborindex = QuantLib::ext::make_shared<QuantLib::USDLibor>(length * QuantLib::Years, index);
+        } else {
+            ::Rf_error("inTermOf needs to be either 'Months' or 'Years'");
         }
     } else{
         iborindex = QuantLib::ext::make_shared<QuantLib::USDLibor>(
