@@ -56,7 +56,7 @@
   \tabular{ll}{
     \code{type} \tab a string, currently support only "USDLibor" \cr
     \code{length} \tab an integer, length of the index \cr
-    \code{inTermOf} \tab a string, period unit, currently support only 'Month' \cr
+    \code{inTermOf} \tab a string, period unit, currently support only 'Months' or 'Years'\cr
     \code{term} \tab a DiscountCurve object, the term structure of the index\cr
   }
 }
@@ -155,7 +155,7 @@ tsQuotes <- list("flat" = 0.02)		## While discount curve code is buggy
 discountCurve.flat <- DiscountCurve(params, list(flat=0.05))
 termstructure <- DiscountCurve(params, list(flat=0.03))
 iborIndex.params <- list(type="USDLibor", length=6, 
-                  inTermOf="Month", term=termstructure)                      
+                  inTermOf="Months", term=termstructure)                      
 FloatingRateBond(bond, gearings, spreads, caps, floors, 
                  iborIndex.params, discountCurve.flat, dateparams)
 
@@ -165,7 +165,7 @@ FloatingRateBond(bond, gearings, spreads, caps, floors,
 discountCurve <- DiscountCurve(params, tsQuotes)
 termstructure <- DiscountCurve(params, list(flat=0.03))
 iborIndex.params <- list(type="USDLibor", length=6, 
-                  inTermOf="Month", term = termstructure)                      
+                  inTermOf="Months", term = termstructure)                      
 FloatingRateBond(bond, gearings, spreads, caps, floors, 
                  iborIndex.params, discountCurve, dateparams)
 
