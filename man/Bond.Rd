@@ -118,7 +118,7 @@ dateparams <- list(settlementDays=1, calendar="UnitedStates/GovernmentBond",
 gearings <- spreads <- caps <- floors <- vector()
 
 iborCurve <- DiscountCurve(params,list(flat=0.05), times)
-ibor <- list(type="USDLibor", length=6, inTermOf="Month", 
+ibor <- list(type="USDLibor", length=6, inTermOf="Months", 
              term=iborCurve)
 FloatingRateBond(bondparams, gearings, spreads, caps, floors, 
                  ibor, discountCurve, dateparams)
