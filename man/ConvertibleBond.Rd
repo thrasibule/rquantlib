@@ -190,7 +190,7 @@ curveparams <- list(method="ExponentialSplinesFitting",
                     origDate = Sys.Date())
 curve <- FittedBondCurve(curveparams, lengths, coupons, marketQuotes, curvedateparams)
 iborindex <- list(type="USDLibor", length=6, 
-                  inTermOf="Month", term=curve)   
+                  inTermOf="Months", term=curve)   
 spreads <- c()
 #ConvertibleFloatingCouponBond(bondparams, iborindex, spreads, process, dateparams)
 
