@@ -125,7 +125,7 @@ QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure> buildTermStructure(Rcpp:
 
         // initialise from the singleton instance
         QuantLib::Calendar calendar = *RQLContext::instance().calendar;
-        //Integer fixingDays = RQLContext::instance().fixingDays;
+        QuantLib::Integer fixingDays = RQLContext::instance().fixingDays;
 
         // Any DayCounter would be fine;  ActualActual::ISDA ensures that 30 years is 30.0
         QuantLib::DayCounter termStructureDayCounter = QuantLib::ActualActual(QuantLib::ActualActual::ISDA);
@@ -149,7 +149,7 @@ QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure> buildTermStructure(Rcpp:
                     throw std::range_error("Unknown rate in getRateHelper");
                 curveInput.push_back(rh);
             }
-            curve.reset(getTermStructure(interpWhat, interpHow, settlementDate, curveInput, 
+            curve.reset(getTermStructure(interpWhat, interpHow, fixingDays, calendar, curveInput, 
                                      termStructureDayCounter, tolerance));
         }
         return curve;
