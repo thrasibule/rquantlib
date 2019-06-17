@@ -149,10 +149,8 @@ QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure> buildTermStructure(Rcpp:
                     throw std::range_error("Unknown rate in getRateHelper");
                 curveInput.push_back(rh);
             }
-            QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure> ts =
-                getTermStructure(interpWhat, interpHow, settlementDate, curveInput,
-                                 termStructureDayCounter, tolerance);
-            curve = ts;
+            curve.reset(getTermStructure(interpWhat, interpHow, settlementDate, curveInput, 
+                                     termStructureDayCounter, tolerance));
         }
         return curve;
 
@@ -168,8 +166,8 @@ QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure> buildTermStructure(Rcpp:
 QuantLib::Schedule getSchedule(Rcpp::List rparam) {
 
     QuantLib::Date effectiveDate(Rcpp::as<QuantLib::Date>(rparam["effectiveDate"]));
-    QuantLib::Date maturityDate(Rcpp::as<QuantLib::Date>(rparam["maturityDate"]));
-    QuantLib::Period period = QuantLib::Period(getFrequency(Rcpp::as<double>(rparam["period"])));
+    QuantLib::Date maturityDate(Rcpp::as<QuantLib::Date>(rparam["maturityDate"]));      
+    QuantLib::Period period = QuantLib::Period(getFrequency(Rcpp::as<int>(rparam["period"])));
     std::string cal = Rcpp::as<std::string>(rparam["calendar"]);
     QuantLib::Calendar calendar;
     if(!cal.empty()) {
@@ -229,7 +227,7 @@ QuantLib::ext::shared_ptr<QuantLib::FixedRateBond> getFixedRateBond(
     }
     QuantLib::Period exCouponPeriod;
     if(bondparam.containsElementNamed("exCouponPeriod") ) {
-        exCouponPeriod = QuantLib::Period(Rcpp::as<double>(bondparam["exCouponPeriod"]), QuantLib::Days);
+        exCouponPeriod = QuantLib::Period(Rcpp::as<int>(bondparam["exCouponPeriod"]), QuantLib::Days);
     }
     QuantLib::Calendar exCouponCalendar;
     if(bondparam.containsElementNamed("exCouponCalendar") ) {
@@ -273,10 +271,9 @@ rebuildCurveFromZeroRates(std::vector<QuantLib::Date> dates,
 
 QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure> getFlatCurve(Rcpp::List curve) {
     QuantLib::Rate riskFreeRate = Rcpp::as<double>(curve["riskFreeRate"]);
-    QuantLib::Date today(Rcpp::as<QuantLib::Date>(curve["todayDate"]));
-    QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> rRate = QuantLib::ext::make_shared<QuantLib::SimpleQuote>(riskFreeRate);
+    QuantLib::Date today(Rcpp::as<QuantLib::Date>(curve["todayDate"]));       
     QuantLib::Settings::instance().evaluationDate() = today;
-    return flatRate(today, rRate, QuantLib::Actual360());
+    return flatRate(today, riskFreeRate, QuantLib::Actual360());
 }
 
 QuantLib::ext::shared_ptr<QuantLib::IborIndex> getIborIndex(Rcpp::List rparam, const QuantLib::Date today) {
@@ -284,36 +281,21 @@ QuantLib::ext::shared_ptr<QuantLib::IborIndex> getIborIndex(Rcpp::List rparam, c
     if (type == "USDLibor"){
         double riskFreeRate = Rcpp::as<double>(rparam["riskFreeRate"]);
         double period = Rcpp::as<double>(rparam["period"]);
-        QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> rRate = QuantLib::ext::make_shared<QuantLib::SimpleQuote>(riskFreeRate);
         QuantLib::Settings::instance().evaluationDate() = today;
         QuantLib::Handle<QuantLib::YieldTermStructure> curve(
-            flatRate(today, rRate, QuantLib::Actual360()));
+            flatRate(today, riskFreeRate, QuantLib::Actual360()));
         return QuantLib::ext::make_shared<QuantLib::USDLibor>(period * QuantLib::Months, curve);
     }
     else return QuantLib::ext::shared_ptr<QuantLib::IborIndex>();
 }
 
 QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure>
-makeFlatCurve(const QuantLib::Date& today,
-              const QuantLib::ext::shared_ptr<QuantLib::Quote>& forward,
-              const QuantLib::DayCounter& dc) {
-    return QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure>(new QuantLib::FlatForward(today, QuantLib::Handle<QuantLib::Quote>(forward), dc));
-}
-
-QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure>
 flatRate(const QuantLib::Date& today,
-         const QuantLib::ext::shared_ptr<QuantLib::Quote>& forward,
+         double forward,
          const QuantLib::DayCounter& dc) {
-    return QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure>(new QuantLib::FlatForward(today, QuantLib::Handle<QuantLib::Quote>(forward), dc));
-}
-
-QuantLib::ext::shared_ptr<QuantLib::BlackVolTermStructure>
-makeFlatVolatility(const QuantLib::Date& today,
-                   const QuantLib::ext::shared_ptr<QuantLib::Quote>& vol,
-                   const QuantLib::DayCounter dc) {
-    return QuantLib::ext::shared_ptr<QuantLib::BlackVolTermStructure>(new QuantLib::BlackConstantVol(today,
-                                                                                             QuantLib::NullCalendar(),
-                                                                                             QuantLib::Handle<QuantLib::Quote>(vol), dc));
+    return QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure>(
+        new QuantLib::FlatForward(today, forward, dc)
+        );
 }
 
 QuantLib::ext::shared_ptr<QuantLib::BlackVolTermStructure>
@@ -508,11 +490,13 @@ QuantLib::CallabilitySchedule getCallabilitySchedule(Rcpp::DataFrame callScheDF)
         int nrow = n0v.size();
         for (int row=0; row < nrow; row++) {
             double price = n0v[row]; //table[row][0].getDoubleValue();
+            QuantLib::Callability::Type type = (s1v[row]=="P") ?
+                QuantLib::Callability::Put : QuantLib::Callability::Call;
             Rcpp::Date rd = Rcpp::Date(n2v[row]);
             QuantLib::Date d(Rcpp::as<QuantLib::Date>(Rcpp::wrap(rd)));
             callabilitySchedule.push_back(QuantLib::ext::make_shared<QuantLib::Callability>(
                                               QuantLib::Callability::Price(price, QuantLib::Callability::Price::Clean),
-                                              s1v["row"] == "P" ? Quantlib::Callability::Put : QuantLib::Callability::Call,
+                                              type,
                                               d));
         }
     } catch (std::exception& ex){

@@ -44,8 +44,7 @@ double europeanOptionImpliedVolatilityEngine(std::string type,
 
     QuantLib::Option::Type optionType = getOptionType(type);
 
-    QuantLib::Date today = QuantLib::Date::todaysDate();
-    QuantLib::Settings::instance().evaluationDate() = today;
+    QuantLib::Date today = QuantLib::Settings::instance().evaluationDate();
 
     // new framework as per QuantLib 0.3.5
     // updated for 0.3.7
@@ -54,10 +53,8 @@ double europeanOptionImpliedVolatilityEngine(std::string type,
     QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> spot = QuantLib::ext::make_shared<QuantLib::SimpleQuote>(underlying);
     QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> vol = QuantLib::ext::make_shared<QuantLib::SimpleQuote>(volatility);
     QuantLib::ext::shared_ptr<QuantLib::BlackVolTermStructure> volTS = flatVol(today, vol, dc);
-    QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> qRate = QuantLib::ext::make_shared<QuantLib::SimpleQuote>(dividendYield);
-    QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure> qTS = flatRate(today, qRate, dc);
-    QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> rRate = QuantLib::ext::make_shared<QuantLib::SimpleQuote>(riskFreeRate);
-    QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure> rTS = flatRate(today, rRate, dc);
+    QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure> qTS = flatRate(today, dividendYield, dc);
+    QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure> rTS = flatRate(today, riskFreeRate, dc);
 #ifdef QL_HIGH_RESOLUTION_DATE
     QuantLib::Date exDate(today.dateTime() + length);
 #else
@@ -111,10 +108,8 @@ double americanOptionImpliedVolatilityEngine(std::string type,
     QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> spot = QuantLib::ext::make_shared<QuantLib::SimpleQuote>(underlying);
     QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> vol = QuantLib::ext::make_shared<QuantLib::SimpleQuote>(volguess);
     QuantLib::ext::shared_ptr<QuantLib::BlackVolTermStructure> volTS = flatVol(today, vol,dc);
-    QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> qRate = QuantLib::ext::make_shared<QuantLib::SimpleQuote>(dividendYield);
-    QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure> qTS = flatRate(today, qRate, dc);
-    QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> rRate = QuantLib::ext::make_shared<QuantLib::SimpleQuote>(riskFreeRate);
-    QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure> rTS = flatRate(today, rRate, dc);
+    QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure> qTS = flatRate(today, dividendYield, dc);
+    QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure> rTS = flatRate(today, riskFreeRate, dc);
 
 #ifdef QL_HIGH_RESOLUTION_DATE
     QuantLib::Date exDate(today.dateTime() + length);

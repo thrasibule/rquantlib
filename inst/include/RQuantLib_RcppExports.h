@@ -29,7 +29,7 @@ namespace RQuantLib {
         static Ptr_zeroPriceByYieldEngine p_zeroPriceByYieldEngine = NULL;
         if (p_zeroPriceByYieldEngine == NULL) {
             validateSignature("double(*zeroPriceByYieldEngine)(double,double,int,int,int,int,QuantLib::Date,QuantLib::Date)");
-            p_zeroPriceByYieldEngine = (Ptr_zeroPriceByYieldEngine)R_GetCCallable("RQuantLib", "RQuantLib_zeroPriceByYieldEngine");
+            p_zeroPriceByYieldEngine = (Ptr_zeroPriceByYieldEngine)R_GetCCallable("RQuantLib", "_RQuantLib_zeroPriceByYieldEngine");
         }
         RObject rcpp_result_gen;
         {
@@ -50,7 +50,7 @@ namespace RQuantLib {
         static Ptr_zeroYieldByPriceEngine p_zeroYieldByPriceEngine = NULL;
         if (p_zeroYieldByPriceEngine == NULL) {
             validateSignature("double(*zeroYieldByPriceEngine)(double,double,int,int,int,int,QuantLib::Date,QuantLib::Date)");
-            p_zeroYieldByPriceEngine = (Ptr_zeroYieldByPriceEngine)R_GetCCallable("RQuantLib", "RQuantLib_zeroYieldByPriceEngine");
+            p_zeroYieldByPriceEngine = (Ptr_zeroYieldByPriceEngine)R_GetCCallable("RQuantLib", "_RQuantLib_zeroYieldByPriceEngine");
         }
         RObject rcpp_result_gen;
         {
@@ -71,7 +71,7 @@ namespace RQuantLib {
         static Ptr_fixedRateBondYieldByPriceEngine p_fixedRateBondYieldByPriceEngine = NULL;
         if (p_fixedRateBondYieldByPriceEngine == NULL) {
             validateSignature("double(*fixedRateBondYieldByPriceEngine)(double,double,std::string,double,int,int,double,int,int,QuantLib::Date,QuantLib::Date,QuantLib::Date,std::vector<double>)");
-            p_fixedRateBondYieldByPriceEngine = (Ptr_fixedRateBondYieldByPriceEngine)R_GetCCallable("RQuantLib", "RQuantLib_fixedRateBondYieldByPriceEngine");
+            p_fixedRateBondYieldByPriceEngine = (Ptr_fixedRateBondYieldByPriceEngine)R_GetCCallable("RQuantLib", "_RQuantLib_fixedRateBondYieldByPriceEngine");
         }
         RObject rcpp_result_gen;
         {
@@ -92,7 +92,7 @@ namespace RQuantLib {
         static Ptr_fixedRateBondPriceByYieldEngine p_fixedRateBondPriceByYieldEngine = NULL;
         if (p_fixedRateBondPriceByYieldEngine == NULL) {
             validateSignature("double(*fixedRateBondPriceByYieldEngine)(double,double,std::string,double,int,int,double,int,int,QuantLib::Date,QuantLib::Date,QuantLib::Date,std::vector<double>)");
-            p_fixedRateBondPriceByYieldEngine = (Ptr_fixedRateBondPriceByYieldEngine)R_GetCCallable("RQuantLib", "RQuantLib_fixedRateBondPriceByYieldEngine");
+            p_fixedRateBondPriceByYieldEngine = (Ptr_fixedRateBondPriceByYieldEngine)R_GetCCallable("RQuantLib", "_RQuantLib_fixedRateBondPriceByYieldEngine");
         }
         RObject rcpp_result_gen;
         {

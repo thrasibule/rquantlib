@@ -173,8 +173,24 @@ setEvaluationDate <- function(evalDate) {
     .Call(`_RQuantLib_setEvaluationDate`, evalDate)
 }
 
-discountCurveEngine <- function(rparams, tslist, times, legParams) {
-    .Call(`_RQuantLib_discountCurveEngine`, rparams, tslist, times, legParams)
+discountCurveEngine <- function(rparams, tslist, legParams) {
+    .Call(`_RQuantLib_discountCurveEngine`, rparams, tslist, legParams)
+}
+
+discountFactors <- function(yts, dates) {
+    .Call(`_RQuantLib_discountFactors`, yts, dates)
+}
+
+zeroRates <- function(yts, dates) {
+    .Call(`_RQuantLib_zeroRates`, yts, dates)
+}
+
+forwardRates <- function(yts, dates, period) {
+    .Call(`_RQuantLib_forwardRates`, yts, dates, period)
+}
+
+referenceDate <- function(yts) {
+    .Call(`_RQuantLib_referenceDate`, yts)
 }
 
 calibrateHullWhiteUsingCapsEngine <- function(termStrcDateVec, termStrcZeroVec, capDF, iborDateVec, iborZeroVec, iborType, evalDate) {

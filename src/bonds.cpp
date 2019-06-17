@@ -838,8 +838,9 @@ Rcpp::List callableBondEngine(Rcpp::List rparam,
     double gridIntervals = Rcpp::as<double>(hwparam["gridIntervals"]);
     double rate = Rcpp::as<double>(hwparam["term"]);
         
-    QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> rRate = QuantLib::ext::make_shared<QuantLib::SimpleQuote>(rate);
-    QuantLib::Handle<QuantLib::YieldTermStructure> termStructure(flatRate(issueDate,rRate,QuantLib::Actual360()));
+    QuantLib::Handle<QuantLib::YieldTermStructure> termStructure(
+        flatRate(issueDate, rate, QuantLib::Actual360())
+        );
 
     //QuantLib::Handle<QuantLib::YieldTermStructure> termStructure(rebuildCurveFromZeroRates(
     //                                                               hwTermDateSexp,

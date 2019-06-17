@@ -188,7 +188,7 @@ Rcpp::List sabrengine(Rcpp::List rparam,
     int floatFreq = Rcpp::as<int>(legParams["floatFreq"]);
 
     // BOOST_TEST_MESSAGE("Testing Markov functional vanilla engines...");
-
+    QuantLib::SavedSettings backup;
     Settings::instance().evaluationDate() = tradeDate;
 
     QuantLib::Handle<QuantLib::YieldTermStructure> yldCrv(rebuildCurveFromZeroRates(dateVec, zeroVec));

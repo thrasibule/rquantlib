@@ -59,6 +59,11 @@ export(
     "setEvaluationDate",
     ##--dates.cpp
     "advanceDate",
+    ##--discount.cpp
+    "discountFactors",
+    "forwardRates",
+    "zeroRates",
+    "referenceDate",
     ##--discount.R
     "DiscountCurve",
     "plot.DiscountCurve",
@@ -122,4 +127,3 @@ S3method("print", "Bond")
 S3method("summary", "Bond")
 
 S3method("print", "FixedRateBond")
-
