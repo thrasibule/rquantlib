@@ -6,6 +6,7 @@ importFrom("stats", "sd")
 importFrom("graphics", "par", "plot", "lines", "legend")
 importFrom("utils", "compareVersion", "packageVersion")
 importFrom("zoo","zoo","na.spline")
+importFrom("R6", "R6Class")
 
 useDynLib("RQuantLib", .registration=TRUE)
 
@@ -40,17 +41,7 @@ export(
     "CallableBond",
     "FittedBondCurve",
     ##--calendars.R
-    "calendars",
-    "isBusinessDay", "businessDay",
-    "isHoliday",
-    "isWeekend",
-    "isEndOfMonth",
-    "getEndOfMonth", "endOfMonth",
-    "adjust",
-    "advance",
-    "businessDaysBetween",
-    "getHolidayList", "holidayList",
-    "getBusinessDayList", "businessDayList",
+    "Calendar",
     "setCalendarContext",
     "addHolidays",
     "removeHolidays",

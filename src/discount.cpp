@@ -45,7 +45,7 @@ Rcpp::XPtr<QuantLib::YieldTermStructure> discountCurveEngine(Rcpp::List rparams,
         interpHow  = Rcpp::as<std::string>(rparams["interpHow"]);
     }
     // initialise from the singleton instance
-    QuantLib::Calendar calendar = RQLContext::instance().calendar;
+    QuantLib::Calendar calendar = *RQLContext::instance().calendar;
 
     QuantLib::DayCounter termStructureDayCounter = QuantLib::Actual365Fixed();
     double tolerance = 1e-12;

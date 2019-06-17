@@ -50,17 +50,15 @@ namespace Rcpp {
 // Used to maintain context while in an R function.
 class RQLContext : public QuantLib::Singleton<RQLContext> {
 public:
-    RQLContext() {
-        fixingDays = 2;
-        calendar = QuantLib::TARGET();
-        settleDate = QuantLib::Date::todaysDate()+2;
+    RQLContext() : calendar(new QuantLib::TARGET(), true) {
+        settleDate = QuantLib::Date::todaysDate() + fixingDays;
     }
     // The tradeDate (evaluation date) is maintained by Settings,
     // (which is a singleton structure provided by QuantLib)
     // and used to translate between dates and real-valued times.
     QuantLib::Date settleDate;
-    QuantLib::Calendar calendar;
-    QuantLib::Integer fixingDays;
+    Rcpp::XPtr<QuantLib::Calendar> calendar;
+    QuantLib::Integer fixingDays = 2;
 };
 
 // Instrument types used to construct the yield curve.
@@ -99,7 +97,7 @@ private:
     RQLMap db_;
 };
 
-QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure>
+QuantLib::YieldTermStructure*
 getTermStructure(const std::string& interpWhat, const std::string& interpHow,
                  const QuantLib::Date& settleDate,
                  const std::vector<QuantLib::ext::shared_ptr<QuantLib::RateHelper> >& curveInput,
@@ -153,19 +151,13 @@ QuantLib::DateGeneration::Rule getDateGenerationRule(const int n);
 QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure> buildTermStructure(Rcpp::List params, Rcpp::List);
 QuantLib::Schedule getSchedule(Rcpp::List rparam);
 QuantLib::ext::shared_ptr<QuantLib::FixedRateBond> getFixedRateBond(Rcpp::List bondparam, std::vector<double> ratesVec, Rcpp::List scheduleparam);
-//QuantLib::ext::shared_ptr<QuantLib::IborIndex> getIborIndex(Rcpp::List index, const QuantLib::Date today);////****** ??
-//QuantLib::ext::shared_ptr<QuantLib::IborIndex> getIborIndex(std:string type);////****** ??
-
-// deprecated  std::vector<double> getDoubleVector(SEXP vector);
 QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure> getFlatCurve(Rcpp::List flatcurve);
-//QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure> rebuildCurveFromZeroRates(SEXP dateSexp, SEXP zeroSexp);
 QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure> rebuildCurveFromZeroRates(std::vector<QuantLib::Date> dates, std::vector<double> zeros);
 
 QuantLib::ext::shared_ptr<QuantLib::IborIndex>
 buildIborIndex(std::string type,
                const QuantLib::Handle<QuantLib::YieldTermStructure>& iborStrc);
-//QuantLib::Calendar* getCalendar(SEXP calParameters);
-QuantLib::ext::shared_ptr<QuantLib::Calendar> getCalendar(const std::string &calstr);
+Rcpp::XPtr<QuantLib::Calendar> getCalendar(const std::string &calstr);
 QuantLib::Period periodByTimeUnit(int length, std::string unit);
 
 // simple option type creator based on string

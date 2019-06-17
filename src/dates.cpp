@@ -28,7 +28,7 @@
 
 // [[Rcpp::export]]
 QuantLib::Date advanceDate(QuantLib::Date issueDate, int days) {
-    QuantLib::Calendar cal = RQLContext::instance().calendar;
+    QuantLib::Calendar cal = *RQLContext::instance().calendar;
     QuantLib::Date newDate = cal.advance(issueDate, days, QuantLib::Days);
     return(newDate);
 }

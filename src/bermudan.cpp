@@ -78,7 +78,7 @@ Rcpp::List bermudanFromYieldEngine(Rcpp::List rparam,
     std::string method = Rcpp::as<std::string>(rparam["method"]);
 
     // initialise from the singleton instance
-    QuantLib::Calendar calendar = RQLContext::instance().calendar;
+    QuantLib::Calendar calendar = *RQLContext::instance().calendar;
     //Integer fixingDays = RQLContext::instance().fixingDays;
 
     // Any DayCounter would be fine.
@@ -297,7 +297,7 @@ Rcpp::List bermudanWithRebuiltCurveEngine(Rcpp::List rparam,
     QuantLib::Settings::instance().evaluationDate() = todaysDate;
 
     // initialise from the singleton instance
-    QuantLib::Calendar calendar = RQLContext::instance().calendar;
+    QuantLib::Calendar calendar = *RQLContext::instance().calendar;
     //Integer fixingDays = RQLContext::instance().fixingDays;
 
     double strike = Rcpp::as<double>(rparam["strike"]);

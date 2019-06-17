@@ -157,11 +157,7 @@ QuantLib::Schedule getSchedule(Rcpp::List rparam) {
     QuantLib::Date maturityDate(Rcpp::as<QuantLib::Date>(rparam["maturityDate"]));
     QuantLib::Period period = QuantLib::Period(getFrequency(Rcpp::as<int>(rparam["period"])));
     std::string cal = Rcpp::as<std::string>(rparam["calendar"]);
-    QuantLib::Calendar calendar;
-    if(!cal.empty()) {
-        qlext::shared_ptr<QuantLib::Calendar> p = getCalendar(cal);
-        calendar = *p;
-    }
+    QuantLib::Calendar calendar = *getCalendar(cal);
     QuantLib::BusinessDayConvention businessDayConvention =
         getBusinessDayConvention(Rcpp::as<int>(rparam["businessDayConvention"]));
     QuantLib::BusinessDayConvention terminationDateConvention =
@@ -211,8 +207,7 @@ qlext::shared_ptr<QuantLib::FixedRateBond> getFixedRateBond(Rcpp::List bondparam
     }
     QuantLib::Calendar paymentCalendar;
     if(bondparam.containsElementNamed("paymentCalendar") ) {
-        qlext::shared_ptr<QuantLib::Calendar> p = getCalendar(Rcpp::as<std::string>(bondparam["paymentCalendar"]));
-        paymentCalendar = *p;
+        paymentCalendar = *getCalendar(Rcpp::as<std::string>(bondparam["paymentCalendar"]));
     }
     QuantLib::Period exCouponPeriod;
     if(bondparam.containsElementNamed("exCouponPeriod") ) {
@@ -220,8 +215,7 @@ qlext::shared_ptr<QuantLib::FixedRateBond> getFixedRateBond(Rcpp::List bondparam
     }
     QuantLib::Calendar exCouponCalendar;
     if(bondparam.containsElementNamed("exCouponCalendar") ) {
-        qlext::shared_ptr<QuantLib::Calendar> p = getCalendar(Rcpp::as<std::string>(bondparam["exCouponCalendar"]));
-        exCouponCalendar = *p;
+        exCouponCalendar = *getCalendar(Rcpp::as<std::string>(bondparam["exCouponCalendar"]));
     }
     QuantLib::BusinessDayConvention exCouponConvention = QuantLib::Unadjusted;
     if(bondparam.containsElementNamed("exCouponConvention") ) {
@@ -273,7 +267,6 @@ flatRate(const QuantLib::Date& today,
          const QuantLib::DayCounter& dc) {
     return qlext::make_shared<QuantLib::FlatForward>(today, forward, dc);
 }
-
 qlext::shared_ptr<QuantLib::YieldTermStructure> makeFlatCurve(const QuantLib::Date& today,
                                                               const qlext::shared_ptr<QuantLib::Quote>& forward,
                                                               const QuantLib::DayCounter& dc) {

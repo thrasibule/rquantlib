@@ -19,133 +19,79 @@
 ## Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
 ## MA 02111-1307, USA
 
-calendars <- c("TARGET",
-               "UnitedStates",
-               "UnitedStates/LiborImpact",
-               "UnitedStates/NYSE",
-               "UnitedStates/GovernmentBond",
-               "UnitedStates/NERC",
-               "UnitedStates/FederalReserve",
-               "Argentina",
-               "Australia",
-               "Austria",
-               "Austria/Exchange",
-               "Bespoke",
-               "Botswana",
-               "Brazil",
-               "Brazil/Exchange",
-               "Canada",
-               "Canada/TSX",
-               "Chile",
-               "China",
-               "China/IB",
-               "CzechRepublic",
-               "Denmark",
-               "Finland",
-               "France",
-               "France/Exchange",
-               "Germany",
-               "Germany/FrankfurtStockExchange",
-               "Germany/Xetra",
-               "Germany/Eurex",
-               "Germany/Euwax",
-               "HongKong",
-               "Hungary",
-               "Iceland",
-               "India",
-               "Indonesia",
-               "Israel",
-               "Italy",
-               "Italy/Exchange",
-               "Japan",
-               "Mexico",
-               "NewZealand",
-               "Norway",
-               "Null",
-               "Poland",
-               "Romania",
-               "Russia",
-               "SaudiArabia",
-               "Singapore",
-               "Slovakia",
-               "SouthAfrica",
-               "SouthKorea",
-               "SouthKorea/KRX",
-               "Sweden",
-               "Switzerland",
-               "Taiwan",
-               "Thailand",
-               "Turkey",
-               "Ukraine",
-               "UnitedKingdom",
-               "UnitedKingdom/Exchange",
-               "UnitedKingdom/Metals",
-               "WeekendsOnly")
-
-## isBusinessDay <- function(calendar="TARGET", dates=Sys.Date()) {
-##     stopifnot(is.character(calendar))
-##     stopifnot(class(dates)=="Date")
-##     val <- .Call("isBusinessDay", calendar, dates, PACKAGE="RQuantLib")
-##     val <- as.logical(val)
-##     names(val) <- dates
-##     val
-## }
-
-businessDay <- function(calendar="TARGET", dates=Sys.Date()) {  ## may get deprecated one day
-    isBusinessDay(calendar, dates)
-}
-
-## isHoliday <- function(calendar="TARGET", dates=Sys.Date()) {
-##     stopifnot(is.character(calendar))
-##     stopifnot(class(dates)=="Date")
-##     val <- .Call("isHoliday", calendar, dates, PACKAGE="RQuantLib")
-##     val <- as.logical(val)
-##     names(val) <- dates
-##     val
-## }
-
-## isWeekend <- function(calendar="TARGET", dates=Sys.Date()) {
-##     stopifnot(is.character(calendar))
-##     stopifnot(class(dates)=="Date")
-##     val <- .Call("isWeekend", calendar, dates, PACKAGE="RQuantLib")
-##     val <- as.logical(val)
-##     names(val) <- dates
-##     val
-## }
-
-## isEndOfMonth <- function(calendar="TARGET", dates=Sys.Date()) {
-##     stopifnot(is.character(calendar))
-##     stopifnot(class(dates)=="Date")
-##     val <- .Call("isEndOfMonth", calendar, dates, PACKAGE="RQuantLib")
-##     val <- as.logical(val)
-##     names(val) <- dates
-##     val
-## }
-
-## getEndOfMonth <- function(calendar="TARGET", dates=Sys.Date()) {
-##     stopifnot(is.character(calendar))
-##     stopifnot(class(dates)=="Date")
-##     val <- .Call("endOfMonth", calendar, dates, PACKAGE="RQuantLib")
-##     names(val) <- dates
-##     val
-## }
-
-endOfMonth <- function(calendar="TARGET", dates=Sys.Date()) {
-    getEndOfMonth(calendar, dates)
-}
-
-## adjust <- function(calendar="TARGET", dates=Sys.Date(), bdc = 0 ) {
-##     stopifnot(is.character(calendar))
-##     stopifnot(class(dates)=="Date")
-##     val <- .Call("adjust", calendar, as.double(bdc), dates, PACKAGE="RQuantLib")
-##     names(val) <- dates
-##     val
-## }
+Calendar <- R6Class("Calendar",
+                    public = list(
+                        initialize = function(name) {
+                            private$ptr <- getCalendar(name)
+                        }
+                    ),
+                    private = list(
+                        ptr = NULL
+                    ),
+                    active = list(
+                        name = function() getCalendarName(private$ptr),
+                        isBusinessDay = function(dates) {
+                            isBusinessDay(private$ptr, dates)
+                        },
+                        isHoliday = function(dates) {
+                            isHoliday(private$ptr, dates)
+                        },
+                        isWeekend = function(dates) {
+                            isWeekend(private$ptr, dates)
+                        },
+                        isEndOfMonth = function(dates) {
+                            isEndOfMonth(private$ptr, dates)
+                        },
+                        endOfMonth = function(dates) {
+                            EndOfMonth(private$ptr, dates)
+                        },
+                        adjust = function(dates, bdc = 0) {
+                            adjust(private$ptr, dates, bdc)
+                        },
+                        businessDaysBetween = function(from, to,
+                                                       includeFirst = TRUE,
+                                                       includeLast = FALSE) {
+                            businessDaysBetween(private$ptr, from, to,
+                                                includeFirst, includeLast)
+                        },
+                        adjust = function(dates, bdc = "Following") {
+                            stopifnot(class(dates) == "Date")
+                            adjust(private$ptr, dates, matchBDC(bdc))
+                        },
+                        advance = function(dates, n, timeUnit, period,
+                            bdc = "Following", emr = FALSE) {
+                            stopifnot(class(dates) == "Date")
+                            call1 <- missing(period) && !missing(n) && !missing(timeUnit)
+                            call2 <- !missing(period) && missing(n) && missing(timeUnit)
+                            stopifnot(call1 | call2)
+                            val <- NULL
+                            if (call1) {
+                                val <- advance1(private$ptr, n, timeUnit, matchBDC(bdc), emr, dates)
+                            }
+                            if (call2) {
+                                stopifnot(is.character(period))
+                                val <- advance2(private$ptr, period, matchBDC(bdc), emr, dates)
+                            }
+                            stopifnot( !is.null(val) )
+                            val
+                        },
+                        getHolidayList = function(from = Sys.Date(), to=Sys.Date() + 5,
+                            includeWeekends=FALSE) {
+                            getHolidayList(private$ptr, from, to, includeWeekends)
+                        }
+                    ),
+                    private = list(
+                        ptr = NULL
+                        ),
+                    active = list(
+                        name = function() getCalendarName(private$ptr)
+                        )
+                    )
 
 advance <- function(calendar="TARGET", dates=Sys.Date(),
                     n, timeUnit, # call 1
                     period,      # call 2
-                    bdc = 0, emr = 0) {
+                    bdc = 0, emr = FALSE) {
     stopifnot(is.character(calendar))
     stopifnot(class(dates)=="Date")
     call1 <- missing(period) && !missing(n) && !missing(timeUnit)
@@ -153,62 +99,15 @@ advance <- function(calendar="TARGET", dates=Sys.Date(),
     stopifnot(call1 | call2)
     val <- NULL
     if (call1) {
-        ## val <- .Call("advance1",
-        ##              calendar,
-        ##              list(amount = as.double(n),
-        ##                   unit = as.double(timeUnit),
-        ##                   bdc = as.double(bdc),
-        ##                   emr = as.double(emr)),
-        ##              dates,
-        ##              PACKAGE="RQuantLib")
         val <- advance1(calendar, n, timeUnit, bdc, emr, dates)
     }
     if (call2) {
-        ## val <- .Call("advance2",
-        ##              calendar,
-        ##              list(period = as.double(period),
-        ##                   bdc = as.double(bdc),
-        ##                   emr = as.double(emr)),
-        ##              dates,
-        ##              PACKAGE="RQuantLib")
         val <- advance2(calendar, period, bdc, emr, dates)
     }
     stopifnot( !is.null(val) )
     val
 }
 
-## businessDaysBetween  <- function(calendar="TARGET",
-##                                  from=Sys.Date(),
-##                                  to = Sys.Date() + 5,
-##                                  includeFirst = 1,
-##                                  includeLast = 0
-##                                  ) {
-##     stopifnot(is.character(calendar))
-##     stopifnot(class(from)=="Date")
-##     stopifnot(class(to)=="Date")
-##     val <- .Call("businessDaysBetween",
-##                  calendar,
-##                  list(includeFirst = as.double(includeFirst),
-##                       includeLast = as.double(includeLast)),
-##                  from, to,
-##                  PACKAGE="RQuantLib")
-##     val <- val
-##     val
-## }
-
-## getHolidayList <- function(calendar="TARGET",
-##                            from=Sys.Date(),
-##                            to=Sys.Date() + 5,
-##                            includeWeekends=0) {
-##     stopifnot(is.character(calendar))
-##     stopifnot(class(from)=="Date")
-##     stopifnot(class(to)=="Date")
-##     val <- .Call("holidayList",
-##                  calendar,
-##                  list(includeWeekends=as.double(includeWeekends), from=from, to=to),
-##                  PACKAGE="RQuantLib")
-##     val
-## }
 
 holidayList <- function(calendar="TARGET", from=Sys.Date(), to=Sys.Date() + 5, includeWeekends=FALSE) {
     getHolidayList(calendar, from, to, includeWeekends)
@@ -218,12 +117,3 @@ businessDayList <- function(calendar="TARGET", from=Sys.Date(), to=Sys.Date() + 
     getBusinessDayList(calendar, from, to)
 }
 
-#setCalendarContext <- function(calendar="TARGET",
-#                               fixingDays = 2,
-#                               settleDate = Sys.Date() + 2) {
-#    val <- .Call("setContext",
-#                 list(calendar = calendar,
-#                      fixingDays = fixingDays,
-#                      settleDate = settleDate),
-#                 PACKAGE="RQuantLib")
-#}
