@@ -238,7 +238,7 @@ Rcpp::List sabrengine(Rcpp::List rparam,
         std::vector<QuantLib::Period> underlyingTenors;
         const std::vector<QuantLib::ext::shared_ptr<QuantLib::CashFlow> >& leg = underlyingCall2->fixedLeg();
         for (unsigned int i=0; i<leg.size(); i++) {
-            QuantLib::ext::shared_ptr<QuantLib::Coupon> coupon = QuantLib::ext::dynamic_pointer_cast<QuantLib::Coupon>(leg[i]);
+            QuantLib::ext::shared_ptr<QuantLib::Coupon> coupon = ext::dynamic_pointer_cast<QuantLib::Coupon>(leg[i]);
             if(coupon->accrualStartDate() <= expiryDate && coupon->accrualStartDate() >= startDate) {
                 exerciseDates.push_back(coupon->accrualStartDate());
                 underlyingTenors.push_back(Years*((maturity-(coupon->accrualStartDate()))/365.0));

@@ -84,11 +84,11 @@ Rcpp::List bermudanFromYieldEngine(Rcpp::List rparam,
     QuantLib::DayCounter termStructureDayCounter =
         QuantLib::ActualActual(QuantLib::ActualActual::ISDA);
 
-    QuantLib::ext::shared_ptr<QuantLib::Quote> flatRate(new QuantLib::SimpleQuote(yield[0]));  // FIXME: hardcoded?
-    QuantLib::Handle<QuantLib::YieldTermStructure>
-        rhTermStructure(QuantLib::ext::shared_ptr<QuantLib::FlatForward>(new QuantLib::FlatForward(settlementDate,
-                                                                                           QuantLib::Handle<QuantLib::Quote>(flatRate),
-                                                                                           QuantLib::Actual365Fixed())));
+    QuantLib::ext::shared_ptr<QuantLib::Quote> flatRate = QuantLib::ext::make_shared<QuantLib::SimpleQuote>(yield[0]);  // FIXME: hardcoded?
+    QuantLib::Handle<QuantLib::YieldTermStructure> rhTermStructure(
+        QuantLib::ext::make_shared<QuantLib::FlatForward>(settlementDate,
+                                                          QuantLib::Handle<QuantLib::Quote>(flatRate),
+                                                          QuantLib::Actual365Fixed()));
 
     // Get swaption vol matrix.
     //Rcpp::NumericMatrix swaptionVols(vols);
@@ -119,7 +119,7 @@ Rcpp::List bermudanFromYieldEngine(Rcpp::List rparam,
     QuantLib::DayCounter fixedLegDayCounter = QuantLib::Thirty360(QuantLib::Thirty360::European);
     QuantLib::Frequency floatingLegFrequency = QuantLib::Semiannual;
     QuantLib::Rate dummyFixedRate = 0.03;
-    QuantLib::ext::shared_ptr<QuantLib::IborIndex> indexSixMonths(new QuantLib::Euribor6M(rhTermStructure));
+    QuantLib::ext::shared_ptr<QuantLib::IborIndex> indexSixMonths = QuantLib::ext::make_shared<QuantLib::Euribor6M>(rhTermStructure);
 
     //QuantLib::Date startDate = calendar.advance(settlementDate, 1, QuantLib::Years, floatingLegConvention);  //took out hard coded
     //QuantLib::Date maturity = calendar.advance(startDate, 5, QuantLib::Years, floatingLegConvention);         //dates
@@ -168,16 +168,16 @@ Rcpp::List bermudanFromYieldEngine(Rcpp::List rparam,
     // List of times that have to be included in the timegrid
     std::list<QuantLib::Time> times;
     for (i=0; i<(QuantLib::Size)numRows; i++) {
-        //QuantLib::ext::shared_ptr<QuantLib::Quote> vol(new QuantLib::SimpleQuote(swaptionVols[i][numCols-i-1]));
+        //boost::shared_ptr<QuantLib::Quote> vol(new QuantLib::SimpleQuote(swaptionVols[i][numCols-i-1]));
         QuantLib::ext::shared_ptr<QuantLib::Quote> vol(new QuantLib::SimpleQuote(swaptionVols(i, numCols-i-1)));
         swaptions.push_back(QuantLib::ext::shared_ptr<QuantLib::BlackCalibrationHelper>(new QuantLib::SwaptionHelper(swaptionMaturities[i],
-                                                                                                             QuantLib::Period(swapLengths[numCols-i-1], QuantLib::Years),
-                                                                                                             QuantLib::Handle<QuantLib::Quote>(vol),
-                                                                                                             indexSixMonths,
-                                                                                                             indexSixMonths->tenor(),
-                                                                                                             indexSixMonths->dayCounter(),
-                                                                                                             indexSixMonths->dayCounter(),
-                                                                                                             rhTermStructure)));
+                                                                                                        QuantLib::Period(swapLengths[numCols-i-1], QuantLib::Years),
+                                                                                                        QuantLib::Handle<QuantLib::Quote>(vol),
+                                                                                                        indexSixMonths,
+                                                                                                        indexSixMonths->tenor(),
+                                                                                                        indexSixMonths->dayCounter(),
+                                                                                                        indexSixMonths->dayCounter(),
+                                                                                                        rhTermStructure)));
         swaptions.back()->addTimesTo(times);
 
     }
@@ -192,7 +192,8 @@ Rcpp::List bermudanFromYieldEngine(Rcpp::List rparam,
         QuantLib::ext::shared_ptr<QuantLib::Coupon> coupon = QuantLib::ext::dynamic_pointer_cast<QuantLib::Coupon>(leg[i]);
         bermudanDates.push_back(coupon->accrualStartDate());
     }
-    QuantLib::ext::shared_ptr<QuantLib::Exercise> bermudaExercise(new QuantLib::BermudanExercise(bermudanDates));
+    QuantLib::ext::shared_ptr<QuantLib::Exercise> bermudaExercise = QuantLib::ext::make_shared<QuantLib::BermudanExercise>(
+        bermudanDates);
 
     // Price based on method selected.
     if (method.compare("G2Analytic") == 0) {
@@ -395,16 +396,16 @@ Rcpp::List bermudanWithRebuiltCurveEngine(Rcpp::List rparam,
     std::list<QuantLib::Time> times;
     for (i=0; i<(QuantLib::Size)numRows; i++) {
 
-        //QuantLib::ext::shared_ptr<QuantLib::Quote> vol(new QuantLib::SimpleQuote(swaptionVols[i][numCols-i-1]));
+        //boost::shared_ptr<QuantLib::Quote> vol(new QuantLib::SimpleQuote(swaptionVols[i][numCols-i-1]));
         QuantLib::ext::shared_ptr<QuantLib::Quote> vol(new QuantLib::SimpleQuote(swaptionVols(i, numCols-i-1)));
         swaptions.push_back(QuantLib::ext::shared_ptr<QuantLib::BlackCalibrationHelper>(new QuantLib::SwaptionHelper(swaptionMaturities[i],
-                                                                                                             QuantLib::Period(swapLengths[numCols-i-1], QuantLib::Years),
-                                                                                                             QuantLib::Handle<QuantLib::Quote>(vol),
-                                                                                                             indexSixMonths,
-                                                                                                             indexSixMonths->tenor(),
-                                                                                                             indexSixMonths->dayCounter(),
-                                                                                                             indexSixMonths->dayCounter(),
-                                                                                                             rhTermStructure)));
+                                                                                                        QuantLib::Period(swapLengths[numCols-i-1], QuantLib::Years),
+                                                                                                        QuantLib::Handle<QuantLib::Quote>(vol),
+                                                                                                        indexSixMonths,
+                                                                                                        indexSixMonths->tenor(),
+                                                                                                        indexSixMonths->dayCounter(),
+                                                                                                        indexSixMonths->dayCounter(),
+                                                                                                        rhTermStructure)));
         swaptions.back()->addTimesTo(times);
     }
 
@@ -420,15 +421,15 @@ Rcpp::List bermudanWithRebuiltCurveEngine(Rcpp::List rparam,
         bermudanDates.push_back(coupon->accrualStartDate());
     }
 
-    QuantLib::ext::shared_ptr<QuantLib::Exercise> bermudaExercise(new QuantLib::BermudanExercise(bermudanDates));
+    QuantLib::ext::shared_ptr<QuantLib::Exercise> bermudaExercise = QuantLib::ext::make_shared<QuantLib::BermudanExercise>(bermudanDates);
 
     // Price based on method selected.
     if (method.compare("G2Analytic") == 0) {
 
-        QuantLib::ext::shared_ptr<QuantLib::G2> modelG2(new QuantLib::G2(rhTermStructure));
+        QuantLib::ext::shared_ptr<QuantLib::G2> modelG2 = QuantLib::ext::make_shared<QuantLib::G2>(rhTermStructure);
         Rprintf((char*)"G2/Jamshidian (analytic) calibration\n");
         for(i = 0; i < swaptions.size(); i++)
-          swaptions[i]->setPricingEngine(QuantLib::ext::shared_ptr<QuantLib::PricingEngine>(new QuantLib::G2SwaptionEngine(modelG2, 6.0, 16)));
+            swaptions[i]->setPricingEngine(QuantLib::ext::shared_ptr<QuantLib::PricingEngine>(new QuantLib::G2SwaptionEngine(modelG2, 6.0, 16)));
         calibrateModel(modelG2, swaptions, 0.05, swaptionMat, swapLengths, swaptionVols);
         QuantLib::ext::shared_ptr<QuantLib::PricingEngine> engine(new QuantLib::TreeSwaptionEngine(modelG2, 50));
         QuantLib::Swaption bermudanSwaption(mySwap, bermudaExercise);

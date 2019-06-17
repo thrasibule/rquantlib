@@ -41,12 +41,12 @@ Rcpp::List asianOptionEngine(std::string averageType,
     QuantLib::Date today = QuantLib::Date::todaysDate();
     QuantLib::Settings::instance().evaluationDate() = today;
 
-    QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> spot(new QuantLib::SimpleQuote(underlying));
-    QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> qRate(new QuantLib::SimpleQuote(dividendYield));
+    QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> spot = QuantLib::ext::make_shared<QuantLib::SimpleQuote>(underlying);
+    QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> qRate = QuantLib::ext::make_shared<QuantLib::SimpleQuote>(dividendYield);
     QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure> qTS = flatRate(today, qRate, dc);
-    QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> rRate(new QuantLib::SimpleQuote(riskFreeRate));
+    QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> rRate = QuantLib::ext::make_shared<QuantLib::SimpleQuote>(riskFreeRate);
     QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure> rTS = flatRate(today, rRate, dc);
-    QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> vol(new QuantLib::SimpleQuote(volatility));
+    QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> vol = QuantLib::ext::make_shared<QuantLib::SimpleQuote>(volatility);
     QuantLib::ext::shared_ptr<QuantLib::BlackVolTermStructure> volTS = flatVol(today, vol, dc);
 
     QuantLib::ext::shared_ptr<QuantLib::BlackScholesMertonProcess>

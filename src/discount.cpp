@@ -66,7 +66,7 @@ Rcpp::List discountCurveEngine(Rcpp::List rparams,
         //QuantLib::ext::shared_ptr<FlatForward> ts(new FlatForward(settlementDate,
         //                        Handle<Quote>(flatRate),
         //                        ActualActual()));
-        QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> rRate(new QuantLib::SimpleQuote(rateQuote));
+        QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> rRate = QuantLib::ext::make_shared<QuantLib::SimpleQuote>(rateQuote);
         curve = flatRate(settlementDate,rRate,QuantLib::ActualActual());
 
     } else {             // Build curve based on a set of observed rates and/or prices.
@@ -82,15 +82,15 @@ Rcpp::List discountCurveEngine(Rcpp::List rparams,
             std::string name = tsNames[i];
             double val = Rcpp::as<double>(tslist[i]);
             QuantLib::ext::shared_ptr<QuantLib::RateHelper> rh =
-                ObservableDB::instance().getRateHelper(name, val, fixDayCount,fixFreq, floatFreq);
-            // edd 2009-11-01 FIXME NULL_RateHelper no longer builds under 0.9.9
-            // if (rh == NULL_RateHelper)
+                ObservableDB::instance().getRateHelper(name, val,
+                                                       fixDayCount,
+                                                       fixFreq, floatFreq);
             if (rh.get() == NULL)
                 throw std::range_error("Unknown rate in getRateHelper");
             curveInput.push_back(rh);
         }
-        QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure>
-            ts = getTermStructure(interpWhat, interpHow, settlementDate,
+        QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure> 
+            ts = getTermStructure(interpWhat, interpHow, settlementDate, 
                                   curveInput, termStructureDayCounter, tolerance);
         curve = ts;
     }

@@ -106,7 +106,7 @@ private:
 };
 
 QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure>
-getTermStructure(std::string& interpWhat, std::string& interpHow,
+getTermStructure(const std::string& interpWhat, const std::string& interpHow,
                  const QuantLib::Date& settleDate,
                  const std::vector<QuantLib::ext::shared_ptr<QuantLib::RateHelper> >& curveInput,
                  QuantLib::DayCounter& dayCounter, QuantLib::Real tolerance);

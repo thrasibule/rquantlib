@@ -46,12 +46,12 @@ Rcpp::List europeanOptionEngine(std::string type,
 
     // new framework as per QuantLib 0.3.5
     QuantLib::DayCounter dc = QuantLib::Actual360();
-    QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> spot(new QuantLib::SimpleQuote( underlying ));
-    QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> vol(new QuantLib::SimpleQuote( volatility ));
+    QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> spot = QuantLib::ext::make_shared<QuantLib::SimpleQuote>( underlying );
+    QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> vol = QuantLib::ext::make_shared<QuantLib::SimpleQuote>( volatility );
     QuantLib::ext::shared_ptr<QuantLib::BlackVolTermStructure> volTS = flatVol(today, vol, dc);
-    QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> qRate(new QuantLib::SimpleQuote( dividendYield ));
+    QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> qRate = QuantLib::ext::make_shared<QuantLib::SimpleQuote>( dividendYield );
     QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure> qTS = flatRate(today, qRate, dc);
-    QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> rRate(new QuantLib::SimpleQuote( riskFreeRate ));
+    QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> rRate = QuantLib::ext::make_shared<QuantLib::SimpleQuote>( riskFreeRate );
     QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure> rTS = flatRate(today, rRate, dc);
 
     bool withDividends = discreteDividends.isNotNull() && discreteDividendsTimeUntil.isNotNull();
@@ -142,12 +142,12 @@ Rcpp::List americanOptionEngine(std::string type,
     QuantLib::Date today = QuantLib::Date::todaysDate();
     QuantLib::Settings::instance().evaluationDate() = today;
     QuantLib::DayCounter dc = QuantLib::Actual360();
-    QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> spot(new QuantLib::SimpleQuote(underlying));
-    QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> qRate(new QuantLib::SimpleQuote(dividendYield));
-    QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure> qTS = flatRate(today,qRate,dc);
-    QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> rRate(new QuantLib::SimpleQuote(riskFreeRate));
-    QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure> rTS = flatRate(today,rRate,dc);
-    QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> vol(new QuantLib::SimpleQuote(volatility));
+    QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> spot = QuantLib::ext::make_shared<QuantLib::SimpleQuote>( underlying );
+    QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> qRate = QuantLib::ext::make_shared<QuantLib::SimpleQuote>( dividendYield );
+    QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure> qTS = flatRate(today, qRate, dc);
+    QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> rRate = QuantLib::ext::make_shared<QuantLib::SimpleQuote>( riskFreeRate );
+    QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure> rTS = flatRate(today, rRate, dc);
+    QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> vol = QuantLib::ext::make_shared<QuantLib::SimpleQuote>( volatility );
     QuantLib::ext::shared_ptr<QuantLib::BlackVolTermStructure> volTS = flatVol(today, vol, dc);
 
     bool withDividends = discreteDividends.isNotNull() && discreteDividendsTimeUntil.isNotNull();
@@ -266,12 +266,12 @@ Rcpp::List europeanOptionArraysEngine(std::string type, Rcpp::NumericMatrix par)
 #endif
         double volatility    = par(i, 5);    // sixth column
 
-        QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> spot(new QuantLib::SimpleQuote( underlying ));
-        QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> vol(new QuantLib::SimpleQuote( volatility ));
+        QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> spot = QuantLib::ext::make_shared<QuantLib::SimpleQuote>( underlying );
+        QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> vol = QuantLib::ext::make_shared<QuantLib::SimpleQuote>( volatility );
         QuantLib::ext::shared_ptr<QuantLib::BlackVolTermStructure> volTS = flatVol(today, vol, dc);
-        QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> qRate(new QuantLib::SimpleQuote( dividendYield ));
+        QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> qRate = QuantLib::ext::make_shared<QuantLib::SimpleQuote>( dividendYield );
         QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure> qTS = flatRate(today, qRate, dc);
-        QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> rRate(new QuantLib::SimpleQuote( riskFreeRate ));
+        QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> rRate = QuantLib::ext::make_shared<QuantLib::SimpleQuote>( riskFreeRate );
         QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure> rTS = flatRate(today, rRate, dc);
 
 #ifdef QL_HIGH_RESOLUTION_DATE

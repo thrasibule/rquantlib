@@ -186,7 +186,7 @@ Rcpp::List FloatingBond(Rcpp::List rparam,
     double businessDayConvention = Rcpp::as<double>(datemisc["businessDayConvention"]);
     double terminationDateConvention = Rcpp::as<double>(datemisc["terminationDateConvention"]);
     double dateGeneration = Rcpp::as<double>(datemisc["dateGeneration"]);
-    double endOfMonthRule = Rcpp::as<double>(datemisc["endOfMonth"]);
+    bool endOfMonth = Rcpp::as<bool>(datemisc["endOfMonth"]);
     double fixingDays = Rcpp::as<double>(datemisc["fixingDays"]);
 
     //build schedule
@@ -195,13 +195,11 @@ Rcpp::List FloatingBond(Rcpp::List rparam,
     QuantLib::DayCounter dc = getDayCounter(dayCounter);
     QuantLib::Frequency freq = getFrequency(frequency);
     QuantLib::DateGeneration::Rule rule = getDateGenerationRule(dateGeneration);
-    bool endOfMonth = (endOfMonthRule==1) ? true : false;
 
     //set up calendar
     QuantLib::Calendar calendar;
     if (!cal.empty()) {
-        QuantLib::ext::shared_ptr<QuantLib::Calendar> p = getCalendar(cal);
-        calendar = *p;
+        calendar = *getCalendar(cal);
     }
     QuantLib::Schedule sch(effectiveDate, maturityDate, QuantLib::Period(freq), calendar,
                            bdc, tbdc, rule, endOfMonth);
@@ -216,18 +214,16 @@ Rcpp::List FloatingBond(Rcpp::List rparam,
     double length = Rcpp::as<double>(iborparams["length"]);
     std::string inTermOf = Rcpp::as<std::string>(iborparams["inTermOf"]);
 
-    QuantLib::ext::shared_ptr<QuantLib::IborIndex>
-        iborindex(new QuantLib::USDLibor(6 * QuantLib::Months, index));
+    QuantLib::ext::shared_ptr<QuantLib::IborIndex> iborindex;
     if (type=="USDLibor") {
         if (inTermOf=="Months") {
-            QuantLib::ext::shared_ptr<QuantLib::IborIndex>
-                temp(new QuantLib::USDLibor(length * QuantLib::Months, index));
-            iborindex = temp;
+            iborindex = QuantLib::ext::make_shared<QuantLib::USDLibor>(length * QuantLib::Months, index);
         } else if (inTermOf=="Years") {
-            QuantLib::ext::shared_ptr<QuantLib::IborIndex>
-                temp(new QuantLib::USDLibor(length * QuantLib::Years, index));
-            iborindex = temp;
+            iborindex = QuantLib::ext::make_shared<QuantLib::USDLibor>(length * QuantLib::Years, index);
         }
+    } else{
+        iborindex = QuantLib::ext::make_shared<QuantLib::USDLibor>(
+            6 * QuantLib::Months, index);
     }
     //build the bond
     QuantLib::FloatingRateBond bond(settlementDays, faceAmount, sch, iborindex,
@@ -236,14 +232,14 @@ Rcpp::List FloatingBond(Rcpp::List rparam,
 
 
     //bond price
-    QuantLib::ext::shared_ptr<QuantLib::PricingEngine>
-        bondEngine(new QuantLib::DiscountingBondEngine(discountCurve));
+    QuantLib::ext::shared_ptr<QuantLib::PricingEngine> bondEngine = QuantLib::ext::make_shared<QuantLib::DiscountingBondEngine>(
+        discountCurve);
     bond.setPricingEngine(bondEngine);
 
 
     //cashflow
-    QuantLib::ext::shared_ptr<QuantLib::IborCouponPricer>
-        pricer(new QuantLib::BlackIborCouponPricer(QuantLib::Handle<QuantLib::OptionletVolatilityStructure>()));
+    QuantLib::ext::shared_ptr<QuantLib::IborCouponPricer> pricer = QuantLib::ext::make_shared<QuantLib::BlackIborCouponPricer>(
+        QuantLib::Handle<QuantLib::OptionletVolatilityStructure>());
     setCouponPricer(bond.cashflows(),pricer);
 
     return Rcpp::List::create(Rcpp::Named("NPV") = bond.NPV(),
@@ -418,8 +414,8 @@ Rcpp::List FixedRateWithRebuiltCurve(Rcpp::List bondparam,
         discountCurve(rebuildCurveFromZeroRates(dateVec, zeroVec));
 
     //bond price
-    QuantLib::ext::shared_ptr<QuantLib::PricingEngine>
-        bondEngine(new QuantLib::DiscountingBondEngine(discountCurve));
+    QuantLib::ext::shared_ptr<QuantLib::PricingEngine> bondEngine = QuantLib::ext::make_shared<QuantLib::DiscountingBondEngine>(
+        discountCurve);
     bond->setPricingEngine(bondEngine);
 
     const double yield = bond->yield(calcDayCounter, compounding, calcFreq, accuracy, maxEvaluations);
@@ -469,7 +465,8 @@ Rcpp::List zeroBondEngine(Rcpp::List rparam,
     QuantLib::ZeroCouponBond bond(settlementDays, calendar, faceAmount,
                                   maturityDate, bdc, redemption, issueDate);
 
-    QuantLib::ext::shared_ptr<QuantLib::PricingEngine> bondEngine(new QuantLib::DiscountingBondEngine(discountCurve));
+    QuantLib::ext::shared_ptr<QuantLib::PricingEngine> bondEngine = QuantLib::ext::make_shared<QuantLib::DiscountingBondEngine>(
+        discountCurve);
     bond.setPricingEngine(bondEngine);
 
     return Rcpp::List::create(Rcpp::Named("NPV") = bond.NPV(),
@@ -545,27 +542,26 @@ Rcpp::List convertibleZeroBondEngine(Rcpp::List rparam,
 
     double underlyingQuote = Rcpp::as<double>(processParam["underlying"]);
     double volatilityQuote = Rcpp::as<double>(processParam["volatility"]);
-    underlying.linkTo(QuantLib::ext::shared_ptr<QuantLib::Quote>(new QuantLib::SimpleQuote(underlyingQuote)));
-    QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> vol(new QuantLib::SimpleQuote( volatilityQuote ));
+    underlying.linkTo(QuantLib::ext::make_shared<QuantLib::SimpleQuote>(underlyingQuote));
+    QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> vol = QuantLib::ext::make_shared<QuantLib::SimpleQuote>( volatilityQuote );
     volatility.linkTo(flatVol(todayDate, vol, dc));
 
-    blackProcess =
-        QuantLib::ext::shared_ptr<QuantLib::BlackScholesMertonProcess>(new QuantLib::BlackScholesMertonProcess(underlying, dividendYield,
-                                                                                                       rff, volatility));
+    blackProcess = QuantLib::ext::make_shared<QuantLib::BlackScholesMertonProcess>(underlying, dividendYield,
+                                                                                   rff, volatility);
 
     QuantLib::RelinkableHandle<QuantLib::Quote> creditSpread;
-    creditSpread.linkTo(QuantLib::ext::shared_ptr<QuantLib::Quote>(new QuantLib::SimpleQuote(creditSpreadQuote)));
+    creditSpread.linkTo(QuantLib::ext::make_shared<QuantLib::SimpleQuote>(creditSpreadQuote));
 
-    QuantLib::ext::shared_ptr<QuantLib::Exercise> euExercise(new QuantLib::EuropeanExercise(maturityDate));
-    QuantLib::ext::shared_ptr<QuantLib::Exercise> amExercise(new QuantLib::AmericanExercise(issueDate, maturityDate));
+    QuantLib::ext::shared_ptr<QuantLib::Exercise> euExercise = QuantLib::ext::make_shared<QuantLib::EuropeanExercise>(maturityDate);
+    QuantLib::ext::shared_ptr<QuantLib::Exercise> amExercise = QuantLib::ext::make_shared<QuantLib::AmericanExercise>(
+        issueDate, maturityDate);
     QuantLib::ext::shared_ptr<QuantLib::Exercise> ex = (exercise == "eu") ? euExercise : amExercise;
 
     QuantLib::Size timeSteps = 1001;
-    QuantLib::ext::shared_ptr<QuantLib::PricingEngine>
-        engine(new QuantLib::BinomialConvertibleEngine<QuantLib::CoxRossRubinstein>(blackProcess, timeSteps));
+    QuantLib::ext::shared_ptr<QuantLib::PricingEngine> engine = QuantLib::ext::make_shared<QuantLib::BinomialConvertibleEngine<QuantLib::CoxRossRubinstein>>(blackProcess, timeSteps);
 
-    QuantLib::Handle<QuantLib::YieldTermStructure>
-        discountCurve(QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure>(new QuantLib::ForwardSpreadedTermStructure(rff, creditSpread)));
+    QuantLib::Handle<QuantLib::YieldTermStructure> discountCurve(
+        QuantLib::ext::make_shared<QuantLib::ForwardSpreadedTermStructure>(rff, creditSpread));
 
     QuantLib::Schedule sch(issueDate, maturityDate, QuantLib::Period(freq), calendar,
                            bdc, bdc, QuantLib::DateGeneration::Backward, false);
@@ -638,20 +634,18 @@ Rcpp::List convertibleFixedBondEngine(Rcpp::List rparam,
 
     double underlyingQuote = Rcpp::as<double>(processParam["underlying"]);
     double volatilityQuote = Rcpp::as<double>(processParam["volatility"]);
-    underlying.linkTo(QuantLib::ext::shared_ptr<QuantLib::Quote>(new QuantLib::SimpleQuote(underlyingQuote)));
-    QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> vol(new QuantLib::SimpleQuote( volatilityQuote ));
+    underlying.linkTo(QuantLib::ext::make_shared<QuantLib::SimpleQuote>(underlyingQuote));
+    QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> vol = QuantLib::ext::make_shared<QuantLib::SimpleQuote>( volatilityQuote );
     volatility.linkTo(flatVol(todayDate, vol, dc));
 
-    QuantLib::ext::shared_ptr<QuantLib::BlackScholesMertonProcess> blackProcess;
-    blackProcess =
-        QuantLib::ext::shared_ptr<QuantLib::BlackScholesMertonProcess>(new QuantLib::BlackScholesMertonProcess(underlying, dividendYield, rff, volatility));
-        //	QuantLib::ext::shared_ptr<QuantLib::BlackScholesProcess> blackProcess;
-        //ackProcess = QuantLib::ext::shared_ptr<QuantLib::BlackScholesProcess>(
-        //					      new QuantLib::BlackScholesProcess(underlying,
+    QuantLib::ext::shared_ptr<QuantLib::BlackScholesMertonProcess> blackProcess  = QuantLib::ext::make_shared<QuantLib::BlackScholesMertonProcess>(underlying, dividendYield, rff, volatility);
+        //	boost::shared_ptr<QuantLib::BlackScholesProcess> blackProcess;
+        //ackProcess = boost::shared_ptr<QuantLib::BlackScholesProcess>(
+        //					      new QuantLib::BlackScholesProcess(underlying, 
         //								      rff, volatility));
 
     QuantLib::RelinkableHandle<QuantLib::Quote> creditSpread;
-    creditSpread.linkTo(QuantLib::ext::shared_ptr<QuantLib::Quote>(new QuantLib::SimpleQuote(creditSpreadQuote)));
+    creditSpread.linkTo(QuantLib::ext::make_shared<QuantLib::SimpleQuote>(creditSpreadQuote));
 
     QuantLib::ext::shared_ptr<QuantLib::Exercise> euExercise(new QuantLib::EuropeanExercise(maturityDate));
     QuantLib::ext::shared_ptr<QuantLib::Exercise> amExercise(new QuantLib::AmericanExercise(issueDate, maturityDate));
@@ -764,15 +758,15 @@ Rcpp::List convertibleFloatingBondEngine(Rcpp::List rparam,
 
     double underlyingQuote = Rcpp::as<double>(processParam["underlying"]);
     double volatilityQuote = Rcpp::as<double>(processParam["volatility"]);
-    underlying.linkTo(QuantLib::ext::shared_ptr<QuantLib::Quote>(new QuantLib::SimpleQuote(underlyingQuote)));
-    QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> vol(new QuantLib::SimpleQuote( volatilityQuote ));
+    underlying.linkTo(QuantLib::ext::make_shared<QuantLib::SimpleQuote>(underlyingQuote));
+    QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> vol = QuantLib::ext::make_shared<QuantLib::SimpleQuote>( volatilityQuote );
     volatility.linkTo(flatVol(todayDate, vol, dc));
 
     blackProcess =
-        QuantLib::ext::shared_ptr<QuantLib::BlackScholesMertonProcess>(new QuantLib::BlackScholesMertonProcess(underlying, dividendYield, rff, volatility));
+        QuantLib::ext::make_shared<QuantLib::BlackScholesMertonProcess>(underlying, dividendYield, rff, volatility);
 
     QuantLib::RelinkableHandle<QuantLib::Quote> creditSpread;
-    creditSpread.linkTo(QuantLib::ext::shared_ptr<QuantLib::Quote>(new QuantLib::SimpleQuote(creditSpreadQuote)));
+    creditSpread.linkTo(QuantLib::ext::make_shared<QuantLib::SimpleQuote>(creditSpreadQuote));
 
     QuantLib::ext::shared_ptr<QuantLib::Exercise> euExercise(new QuantLib::EuropeanExercise(maturityDate));
     QuantLib::ext::shared_ptr<QuantLib::Exercise> amExercise(new QuantLib::AmericanExercise(issueDate, maturityDate));
@@ -781,11 +775,11 @@ Rcpp::List convertibleFloatingBondEngine(Rcpp::List rparam,
 
 
     QuantLib::Size timeSteps = 1001;
-    QuantLib::ext::shared_ptr<QuantLib::PricingEngine> engine(new QuantLib::BinomialConvertibleEngine<QuantLib::CoxRossRubinstein>(blackProcess, timeSteps));
+    QuantLib::ext::shared_ptr<QuantLib::PricingEngine> engine = QuantLib::ext::make_shared<QuantLib::BinomialConvertibleEngine<QuantLib::CoxRossRubinstein>>(blackProcess, timeSteps);
 
-    QuantLib::Handle<QuantLib::YieldTermStructure>
-        discountCurve(QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure>(new QuantLib::ForwardSpreadedTermStructure(rff,
-                                                                                                                 creditSpread)));
+    QuantLib::Handle<QuantLib::YieldTermStructure> discountCurve(
+        QuantLib::ext::make_shared<QuantLib::ForwardSpreadedTermStructure>(rff,
+                                                                           creditSpread));
     QuantLib::Natural fixingDays = 2;
     QuantLib::Schedule sch(issueDate, maturityDate, QuantLib::Period(freq),
                            calendar, bdc, bdc, QuantLib::DateGeneration::Backward, false);
@@ -842,19 +836,18 @@ Rcpp::List callableBondEngine(Rcpp::List rparam,
     double sigma = Rcpp::as<double>(hwparam["sigma"]);
     double gridIntervals = Rcpp::as<double>(hwparam["gridIntervals"]);
     double rate = Rcpp::as<double>(hwparam["term"]);
-
-    QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> rRate(new QuantLib::SimpleQuote(rate));
+        
+    QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> rRate = QuantLib::ext::make_shared<QuantLib::SimpleQuote>(rate);
     QuantLib::Handle<QuantLib::YieldTermStructure> termStructure(flatRate(issueDate,rRate,QuantLib::Actual360()));
 
     //QuantLib::Handle<QuantLib::YieldTermStructure> termStructure(rebuildCurveFromZeroRates(
     //                                                               hwTermDateSexp,
     //                                                               hwTermZeroSexp));
 
-    QuantLib::ext::shared_ptr<QuantLib::ShortRateModel>
-        hw0(new QuantLib::HullWhite(termStructure,alpha,sigma));
+    QuantLib::ext::shared_ptr<QuantLib::ShortRateModel> hw0 = QuantLib::ext::make_shared<QuantLib::HullWhite>(
+        termStructure,alpha,sigma);
 
-    QuantLib::ext::shared_ptr<QuantLib::PricingEngine>
-        engine0(new QuantLib::TreeCallableFixedRateBondEngine(hw0,gridIntervals));
+    QuantLib::ext::shared_ptr<QuantLib::PricingEngine> engine0 = QuantLib::ext::make_shared<QuantLib::TreeCallableFixedRateBondEngine>(hw0,gridIntervals);
 
     QuantLib::Schedule sch(issueDate, maturityDate,
                            QuantLib::Period(freq), calendar, bdc, bdc,
@@ -1014,8 +1007,7 @@ Rcpp::List fittedBondCurveEngine(Rcpp::List curveparam,
 
     std::vector< QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> > quote;
     for (QuantLib::Size i=0; i<numberOfBonds; i++) {
-        QuantLib::ext::shared_ptr<QuantLib::SimpleQuote> cp(new QuantLib::SimpleQuote(marketQuotes[i]));
-        quote.push_back(cp);
+        quote.push_back(QuantLib::ext::make_shared<QuantLib::SimpleQuote>(marketQuotes[i]));
     }
 
     std::vector< QuantLib::RelinkableHandle<QuantLib::Quote> > quoteHandle(numberOfBonds);
@@ -1041,11 +1033,12 @@ Rcpp::List fittedBondCurveEngine(Rcpp::List curveparam,
                                     bdc, bdc,
                                     QuantLib::DateGeneration::Backward, false);
 
-        QuantLib::ext::shared_ptr<QuantLib::FixedRateBond>
-            bond(new QuantLib::FixedRateBond(settlementDays, 100.0, schedule,
-                                             std::vector<QuantLib::Rate>(1,coupons[j]),
-                                             dc, bdc, redemption, issue, calendar));
-        QuantLib::ext::shared_ptr<QuantLib::BondHelper> helperA(new QuantLib::BondHelper(quoteHandle[j], bond));
+        QuantLib::ext::shared_ptr<QuantLib::FixedRateBond> bond = QuantLib::ext::make_shared<QuantLib::FixedRateBond>(
+            settlementDays, 100.0, schedule,
+            std::vector<QuantLib::Rate>(1,coupons[j]),
+            dc, bdc, redemption, issue, calendar);
+        QuantLib::ext::shared_ptr<QuantLib::BondHelper> helperA = QuantLib::ext::make_shared<QuantLib::BondHelper>(
+            quoteHandle[j], bond);
         instrumentsA.push_back(helperA);
 
     }
@@ -1060,27 +1053,22 @@ Rcpp::List fittedBondCurveEngine(Rcpp::List curveparam,
     if (method=="ExponentialSplinesFitting") {
         QuantLib::ExponentialSplinesFitting exponentialSplines(constrainAtZero);
 
-        QuantLib::ext::shared_ptr<QuantLib::FittedBondDiscountCurve>
-            ts1 (new QuantLib::FittedBondDiscountCurve(settlementDays, calendar, instrumentsA,
-                                                       dc, exponentialSplines, tolerance, max));
-        curve = ts1;
+        curve = QuantLib::ext::make_shared<QuantLib::FittedBondDiscountCurve>(
+            settlementDays, calendar, instrumentsA,
+            dc, exponentialSplines, tolerance, max);
 
     } else if (method == "SimplePolynomialFitting") {
         double degree = Rcpp::as<double>(curveparam["degree"]);
         QuantLib::SimplePolynomialFitting simplePolynomial(degree, constrainAtZero);
-
-        QuantLib::ext::shared_ptr<QuantLib::FittedBondDiscountCurve>
-            ts2 (new QuantLib::FittedBondDiscountCurve(settlementDays, calendar, instrumentsA, dc,
-                                                       simplePolynomial, tolerance, max));
-        curve = ts2;
+        curve = QuantLib::ext::make_shared<QuantLib::FittedBondDiscountCurve>(settlementDays, calendar, instrumentsA, dc,
+                                                                    simplePolynomial, tolerance, max);
 
     } else if (method == "NelsonSiegelFitting") {
         QuantLib::NelsonSiegelFitting nelsonSiegel;
 
-        QuantLib::ext::shared_ptr<QuantLib::FittedBondDiscountCurve>
-            ts3 (new QuantLib::FittedBondDiscountCurve(settlementDays, calendar, instrumentsA, dc,
-                                                       nelsonSiegel, tolerance, max));
-        curve = ts3;
+        curve = QuantLib::ext::make_shared<QuantLib::FittedBondDiscountCurve>(
+            settlementDays, calendar, instrumentsA, dc,
+            nelsonSiegel, tolerance, max);
     }
 
     // Return discount, forward rate, and zero coupon curves
