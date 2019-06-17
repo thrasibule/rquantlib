@@ -23,10 +23,11 @@
 double zeroprice(double yield, QuantLib::Date maturity, QuantLib::Date settle, int period, int basis) {
 
     //setup bond; initialise calendar from the singleton instance
-    QuantLib::Calendar calendar = RQLContext::instance().calendar;
+    QuantLib::Calendar calendar = *RQLContext::instance().calendar;
     QuantLib::Integer fixingDays = RQLContext::instance().fixingDays;
 
-    QuantLib::Date todaysDate = calendar.advance(settle, -fixingDays, QuantLib::Days);
+    QuantLib::Date todaysDate = calendar.advance(
+        settle, -fixingDays, QuantLib::Days);
     QuantLib::Settings::instance().evaluationDate() = todaysDate;
 
     QuantLib::DayCounter dayCounter = getDayCounter(basis);
@@ -45,7 +46,7 @@ double zeroprice(double yield, QuantLib::Date maturity, QuantLib::Date settle, i
 double zeroyield(double price, QuantLib::Date maturity, QuantLib::Date settle, int period, int basis) {
 
     //setup bond; initialise calendar from the singleton instance
-    QuantLib::Calendar calendar = RQLContext::instance().calendar;
+    QuantLib::Calendar calendar = *RQLContext::instance().calendar;
     QuantLib::Integer fixingDays = RQLContext::instance().fixingDays;
 
     QuantLib::Date todaysDate = calendar.advance(settle, -fixingDays, QuantLib::Days);
@@ -82,7 +83,7 @@ Rcpp::DataFrame zbtyield(std::vector<QuantLib::Date> MatDates,
         quoteHandle[i].linkTo(quote[i]);
     }
 
-    QuantLib::Calendar calendar = RQLContext::instance().calendar;
+    QuantLib::Calendar calendar = *RQLContext::instance().calendar;
     QuantLib::Date todaysDate = calendar.advance(SettleDates[0], -2, QuantLib::Days);
     QuantLib::Settings::instance().evaluationDate() = todaysDate;
     QuantLib::Period p(getFrequency(2));
@@ -108,7 +109,7 @@ Rcpp::DataFrame zbtyield(std::vector<QuantLib::Date> MatDates,
         instruments.push_back(helper);
     }
 
-    /*
+   /*
       bool constrainAtZero = true;
       Real tolerance = 1.0e-10;
       Size max = 5000;
@@ -125,7 +126,6 @@ Rcpp::DataFrame zbtyield(std::vector<QuantLib::Date> MatDates,
       max));
       curve = ts3;
     */
-
     QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure> curve = QuantLib::ext::make_shared<QuantLib::PiecewiseYieldCurve<QuantLib::ZeroYield,
                                                                                                          QuantLib::Cubic>>(1, calendar, instruments, dayCounter);
     int numCol = 2;

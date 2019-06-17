@@ -20,135 +20,136 @@
 #include <rquantlib_internal.h>
 
 // returns a reference-counted pointer to a matching Calendar object
-QuantLib::ext::shared_ptr<QuantLib::Calendar> getCalendar(const std::string &calstr) {
-    QuantLib::ext::shared_ptr<QuantLib::Calendar> pcal;
+// [[Rcpp::export]]
+Rcpp::XPtr<QuantLib::Calendar> getCalendar(const std::string &calstr) {
+    QuantLib::Calendar *pcal;
 
     if (calstr == "TARGET") { 		// generic calendar
-        pcal.reset(new QuantLib::TARGET());
+        pcal = new QuantLib::TARGET();
 
     } else if (calstr == "Argentina") {
-        pcal.reset(new QuantLib::Argentina());
+        pcal = new QuantLib::Argentina();
 
     } else if (calstr == "Australia") {
-        pcal.reset(new QuantLib::Australia());
+        pcal = new QuantLib::Australia();
 
     } else if (calstr == "Brazil") {
-        pcal.reset(new QuantLib::Brazil());
+        pcal = new QuantLib::Brazil();
 
     } else if (calstr == "Canada" || calstr == "Canada/Settlement") {
-        pcal.reset(new QuantLib::Canada(QuantLib::Canada::Settlement));
+        pcal = new QuantLib::Canada(QuantLib::Canada::Settlement);
     } else if (calstr == "Canada/TSX") {
-        pcal.reset(new QuantLib::Canada(QuantLib::Canada::TSX));
+        pcal = new QuantLib::Canada(QuantLib::Canada::TSX);
 
     } else if (calstr == "China") {
-        pcal.reset(new QuantLib::China());
+        pcal = new QuantLib::China();
 
     } else if (calstr == "CzechRepublic") {
-        pcal.reset(new QuantLib::CzechRepublic());
+        pcal = new QuantLib::CzechRepublic();
 
     } else if (calstr == "Denmark") {
-        pcal.reset(new QuantLib::Denmark());
+        pcal = new QuantLib::Denmark();
 
     } else if (calstr == "Finland") {
-        pcal.reset(new QuantLib::Finland());
+        pcal = new QuantLib::Finland();
 
     } else if (calstr == "Germany" || calstr == "Germany/FrankfurtStockExchange") {
-        pcal.reset(new QuantLib::Germany(QuantLib::Germany::FrankfurtStockExchange));
+        pcal = new QuantLib::Germany(QuantLib::Germany::FrankfurtStockExchange);
     } else if (calstr == "Germany/Settlement") {
-        pcal.reset(new QuantLib::Germany(QuantLib::Germany::Settlement));
+        pcal = new QuantLib::Germany(QuantLib::Germany::Settlement);
     } else if (calstr == "Germany/Xetra") {
-        pcal.reset(new QuantLib::Germany(QuantLib::Germany::Xetra));
+        pcal = new QuantLib::Germany(QuantLib::Germany::Xetra);
     } else if (calstr == "Germany/Eurex") {
-        pcal.reset(new QuantLib::Germany(QuantLib::Germany::Eurex));
+        pcal = new QuantLib::Germany(QuantLib::Germany::Eurex);
 
     } else if (calstr == "HongKong") {
-        pcal.reset(new QuantLib::HongKong());
+        pcal = new QuantLib::HongKong();
 
     } else if (calstr == "Hungary") {
-        pcal.reset(new QuantLib::Hungary());
+        pcal = new QuantLib::Hungary();
 
     } else if (calstr == "Iceland") {
-        pcal.reset(new QuantLib::Iceland());
+        pcal = new QuantLib::Iceland();
 
     } else if (calstr == "India") {
-        pcal.reset(new QuantLib::India());
+        pcal = new QuantLib::India();
 
     } else if (calstr == "Indonesia") {
-        pcal.reset(new QuantLib::Indonesia());
+        pcal = new QuantLib::Indonesia();
 
     } else if (calstr == "Italy" || calstr == "Italy/Settlement") {
-        pcal.reset(new QuantLib::Italy(QuantLib::Italy::Settlement));
+        pcal = new QuantLib::Italy(QuantLib::Italy::Settlement);
     } else if (calstr == "Italy/Exchange") {
-        pcal.reset(new QuantLib::Italy(QuantLib::Italy::Exchange));
+        pcal = new QuantLib::Italy(QuantLib::Italy::Exchange);
 
     } else if (calstr == "Japan" || calstr == "Japan/Settlement") {
-        pcal.reset(new QuantLib::Japan());
+        pcal = new QuantLib::Japan();
 
     } else if (calstr == "Mexico") {
-        pcal.reset(new QuantLib::Mexico());
+        pcal = new QuantLib::Mexico();
 
     } else if (calstr == "NewZealand") {
-        pcal.reset(new QuantLib::NewZealand());
+        pcal = new QuantLib::NewZealand();
 
     } else if (calstr == "Norway") {
-        pcal.reset(new QuantLib::Norway());
+        pcal = new QuantLib::Norway();
 
     } else if (calstr == "Poland") {
-        pcal.reset(new QuantLib::Poland());
+        pcal = new QuantLib::Poland();
 
     } else if (calstr == "Russia") {
-        pcal.reset(new QuantLib::Russia());
+        pcal = new QuantLib::Russia();
 
     } else if (calstr == "SaudiArabia") {
-        pcal.reset(new QuantLib::SaudiArabia());
+        pcal = new QuantLib::SaudiArabia();
 
     } else if (calstr == "Singapore") {
-        pcal.reset(new QuantLib::Singapore());
+        pcal = new QuantLib::Singapore();
 
     } else if (calstr == "Slovakia") {
-        pcal.reset(new QuantLib::Slovakia());
+        pcal = new QuantLib::Slovakia();
 
     } else if (calstr == "SouthAfrica") {
-        pcal.reset(new QuantLib::SouthAfrica());
+        pcal = new QuantLib::SouthAfrica();
 
     } else if (calstr == "SouthKorea" || calstr == "SouthKorea/Settlement") {
-        pcal.reset(new QuantLib::SouthKorea(QuantLib::SouthKorea::Settlement));
+        pcal = new QuantLib::SouthKorea(QuantLib::SouthKorea::Settlement);
     } else if (calstr == "SouthKorea/KRX") {
-        pcal.reset(new QuantLib::SouthKorea(QuantLib::SouthKorea::KRX));
+        pcal = new QuantLib::SouthKorea(QuantLib::SouthKorea::KRX);
 
     } else if (calstr == "Sweden") {
-        pcal.reset(new QuantLib::Sweden());
+        pcal = new QuantLib::Sweden();
 
     } else if (calstr == "Switzerland") {
-        pcal.reset(new QuantLib::Switzerland());
+        pcal = new QuantLib::Switzerland();
 
     } else if (calstr == "Taiwan") {
-        pcal.reset(new QuantLib::Taiwan());
+        pcal = new QuantLib::Taiwan();
 
     } else if (calstr == "Turkey") {
-        pcal.reset(new QuantLib::Turkey());
+          pcal = new QuantLib::Turkey();
 
     } else if (calstr == "Ukraine") {
-        pcal.reset(new QuantLib::Ukraine());
+        pcal = new QuantLib::Ukraine();
 
     } else if (calstr == "UnitedKingdom" || calstr == "UnitedKingdom/Settlement") {
-        pcal.reset(new QuantLib::UnitedKingdom(QuantLib::UnitedKingdom::Settlement));
+        pcal = new QuantLib::UnitedKingdom(QuantLib::UnitedKingdom::Settlement);
     } else if (calstr == "UnitedKingdom/Exchange") {
-        pcal.reset(new QuantLib::UnitedKingdom(QuantLib::UnitedKingdom::Exchange));
+        pcal = new QuantLib::UnitedKingdom(QuantLib::UnitedKingdom::Exchange);
     } else if (calstr == "UnitedKingdom/Metals") {
-        pcal.reset(new QuantLib::UnitedKingdom(QuantLib::UnitedKingdom::Metals));
+        pcal = new QuantLib::UnitedKingdom(QuantLib::UnitedKingdom::Metals);
 
     } else if (calstr == "UnitedStates" || calstr == "UnitedStates/Settlement") {
-        pcal.reset(new QuantLib::UnitedStates(QuantLib::UnitedStates::Settlement));
+        pcal = new QuantLib::UnitedStates(QuantLib::UnitedStates::Settlement);
     } else if (calstr == "UnitedStates/NYSE") {
-        pcal.reset(new QuantLib::UnitedStates(QuantLib::UnitedStates::NYSE));
+        pcal = new QuantLib::UnitedStates(QuantLib::UnitedStates::NYSE);
     } else if (calstr == "UnitedStates/GovernmentBond") {
-        pcal.reset(new QuantLib::UnitedStates(QuantLib::UnitedStates::GovernmentBond));
+        pcal = new QuantLib::UnitedStates(QuantLib::UnitedStates::GovernmentBond);
     } else if (calstr == "UnitedStates/NERC") {
-        pcal.reset(new QuantLib::UnitedStates(QuantLib::UnitedStates::NERC));
+        pcal = new QuantLib::UnitedStates(QuantLib::UnitedStates::NERC);
 
     } else if (calstr == "WeekendsOnly") {
-        pcal.reset(new QuantLib::WeekendsOnly());
+        pcal = new QuantLib::WeekendsOnly();
 
     } else if (calstr == "Null" || calstr == "null" || calstr == "NULL") {
         pcal.reset(new QuantLib::NullCalendar());
@@ -157,12 +158,13 @@ QuantLib::ext::shared_ptr<QuantLib::Calendar> getCalendar(const std::string &cal
         throw std::invalid_argument("Calendar " + calstr + " not recognised ");
     }
 
-    return pcal;
+    return Rcpp::XPtr<QuantLib::Calendar>(pcal, true);
 }
 
-//setCalendarContext <- function(calendar="TARGET",
-//                               fixingDays = 2,
-//                               settleDate = Sys.Date() + 2) {
+// [[Rcpp::export]]
+const std::string getCalendarName(const Rcpp::XPtr<QuantLib::Calendar>& cal) {
+    return cal->name();
+}
 
 // [[Rcpp::export]]
 bool setCalendarContext(std::string calendar, int fixingDays, QuantLib::Date settleDate) {
@@ -176,140 +178,137 @@ bool setCalendarContext(std::string calendar, int fixingDays, QuantLib::Date set
     // set fixingDays and settleDate
     RQLContext::instance().fixingDays = fixingDays;
     RQLContext::instance().settleDate = settleDate;
-
-    QuantLib::ext::shared_ptr<QuantLib::Calendar> pcal(getCalendar(calendar));
-    RQLContext::instance().calendar = *pcal; // set calendar in global singleton
+    RQLContext::instance().calendar = getCalendar(calendar); // set calendar in global singleton
 
     return true;
 }
 
 // [[Rcpp::export]]
-std::vector<bool> isBusinessDay(std::string calendar, std::vector<QuantLib::Date> dates) {
-    QuantLib::ext::shared_ptr<QuantLib::Calendar> pcal(getCalendar(calendar));
-    int n = dates.size();
-    std::vector<bool> bizdays(n);
-    for (int i=0; i<n; i++) {
-        bizdays[i] = pcal->isBusinessDay(dates[i]);
+std::vector<bool> isBusinessDay(const Rcpp::XPtr<QuantLib::Calendar>& calendar,
+                                const std::vector<QuantLib::Date>& dates) {
+    std::vector<bool> bizdays;
+    for (std::vector<QuantLib::Date>::const_iterator it = dates.begin();
+         it != dates.end(); ++it) {
+        bizdays.push_back(calendar->isBusinessDay(*it));
     }
     return bizdays;
 }
 
 // [[Rcpp::export]]
-std::vector<bool> isHoliday(std::string calendar, std::vector<QuantLib::Date> dates) {
-    QuantLib::ext::shared_ptr<QuantLib::Calendar> pcal(getCalendar(calendar));
-    int n = dates.size();
-    std::vector<bool> hdays(n);
-    for (int i=0; i<n; i++) {
-        hdays[i] = pcal->isHoliday(dates[i]);
+    std::vector<bool> isHoliday(const Rcpp::XPtr<QuantLib::Calendar>& calendar,
+                                const std::vector<QuantLib::Date>& dates) {
+    std::vector<bool> hdays;
+    for (std::vector<QuantLib::Date>::const_iterator it = dates.begin();
+         it != dates.end(); ++it) {
+        hdays.push_back(calendar->isHoliday(*it));
     }
     return hdays;
 }
 
 // [[Rcpp::export]]
-std::vector<bool> isWeekend(std::string calendar, std::vector<QuantLib::Date> dates) {
-    QuantLib::ext::shared_ptr<QuantLib::Calendar> pcal(getCalendar(calendar));
-    int n = dates.size();
-    std::vector<bool> weekends(n);
-    for (int i=0; i<n; i++) {
-        weekends[i] = pcal->isWeekend(dates[i].weekday());
+std::vector<bool> isWeekend(const Rcpp::XPtr<QuantLib::Calendar>& calendar,
+                            const std::vector<QuantLib::Date>& dates) {
+
+    std::vector<bool> weekends;
+    for (std::vector<QuantLib::Date>::const_iterator it = dates.begin();
+         it != dates.end(); ++it) {
+        weekends.push_back(calendar->isWeekend(it->weekday()));
     }
     return weekends;
 }
 
 // [[Rcpp::export]]
-std::vector<bool> isEndOfMonth(std::string calendar, std::vector<QuantLib::Date> dates) {
-    QuantLib::ext::shared_ptr<QuantLib::Calendar> pcal(getCalendar(calendar));
-    int n = dates.size();
-    std::vector<bool> eom(n);
-    for (int i=0; i<n; i++) {
-        eom[i] = pcal->isEndOfMonth(dates[i]);
+std::vector<bool> isEndOfMonth(const Rcpp::XPtr<QuantLib::Calendar>& calendar,
+                               const std::vector<QuantLib::Date>& dates) {
+
+    std::vector<bool> eom;
+    for (std::vector<QuantLib::Date>::const_iterator it = dates.begin();
+         it != dates.end(); ++it) {
+        eom.push_back(calendar->isEndOfMonth(*it));
     }
     return eom;
 }
 
 // [[Rcpp::export]]
-std::vector<QuantLib::Date> getEndOfMonth(std::string calendar, std::vector<QuantLib::Date> dates) {
-    QuantLib::ext::shared_ptr<QuantLib::Calendar> pcal(getCalendar(calendar));
-    int n = dates.size();
-    std::vector<QuantLib::Date> ndates(n);
-    for (int i=0; i<n; i++) {
-        ndates[i] = pcal->endOfMonth(dates[i]);
+std::vector<QuantLib::Date> endOfMonth(const Rcpp::XPtr<QuantLib::Calendar>& calendar,
+                                       const std::vector<QuantLib::Date>& dates) {
+    std::vector<QuantLib::Date> ndates;
+    for (std::vector<QuantLib::Date>::const_iterator it = dates.begin();
+         it != dates.end(); ++it) {
+        ndates.push_back(calendar->endOfMonth(*it));
     }
     return ndates;
 }
 
 // [[Rcpp::export]]
-std::vector<QuantLib::Date> adjust(std::string calendar, std::vector<QuantLib::Date> dates, int bdc=0) {
-    QuantLib::ext::shared_ptr<QuantLib::Calendar> pcal(getCalendar(calendar));
+std::vector<QuantLib::Date> adjust(const Rcpp::XPtr<QuantLib::Calendar>& calendar,
+                                   const std::vector<QuantLib::Date>& dates,
+                                   int bdc = 0) {
     QuantLib::BusinessDayConvention bdcval = getBusinessDayConvention(bdc);
-    int n = dates.size();
-    std::vector<QuantLib::Date> adjusted(n);
-    for (int i=0; i<n; i++) {
-        adjusted[i] = pcal->adjust(dates[i], bdcval);
+    std::vector<QuantLib::Date> adjusted;
+    for (std::vector<QuantLib::Date>::const_iterator it = dates.begin();
+         it != dates.end(); ++it) {
+        adjusted.push_back(calendar->adjust(*it, bdcval));
     }
     return adjusted;
 }
 
 // [[Rcpp::export]]
-std::vector<QuantLib::Date> advance1(std::string calendar,
-         double amount, double unit, int bdcVal, double emr,
-         std::vector<QuantLib::Date> dates) {
+std::vector<QuantLib::Date> advance1(const Rcpp::XPtr<QuantLib::Calendar>& calendar,
+                                     int amount, int unit, int bdcVal,
+                                     bool emr,
+                                     const std::vector<QuantLib::Date>& dates) {
 
-    QuantLib::ext::shared_ptr<QuantLib::Calendar> pcal(getCalendar(calendar));
     QuantLib::BusinessDayConvention bdc = getBusinessDayConvention(bdcVal);
-    int n = dates.size();
-    std::vector<QuantLib::Date> advance(n);
-
-    for (int i=0; i<n; i++) {
-        advance[i] = pcal->advance(dates[i], amount, getTimeUnit(unit), bdc, (emr == 1) ? true : false);
+    std::vector<QuantLib::Date> advance;
+    for (std::vector<QuantLib::Date>::const_iterator it = dates.begin();
+         it != dates.end(); ++it) {
+        advance.push_back(calendar->advance(*it, amount, getTimeUnit(unit), bdc, emr));
     }
     return advance;
 }
 
 // [[Rcpp::export]]
-std::vector<QuantLib::Date> advance2(std::string calendar,
-                                     double period, int bdcVal, double emr,
-                                     std::vector<QuantLib::Date> dates) {
+std::vector<QuantLib::Date> advance2(const Rcpp::XPtr<QuantLib::Calendar>& calendar,
+                                     int period, int bdcVal, bool emr,
+                                     const std::vector<QuantLib::Date>& dates) {
 
-    QuantLib::ext::shared_ptr<QuantLib::Calendar> pcal(getCalendar(calendar));
     QuantLib::BusinessDayConvention bdc = getBusinessDayConvention(bdcVal);
-    int n = dates.size();
-    std::vector<QuantLib::Date> advance(n);
-
-    for (int i=0; i<n; i++) {
-        advance[i] = pcal->advance(dates[i], QuantLib::Period(getFrequency(period)),
-                                   bdc, (emr == 1) ? true : false);
+    std::vector<QuantLib::Date> advance;
+    for (std::vector<QuantLib::Date>::const_iterator it = dates.begin();
+         it != dates.end(); ++it) {
+        advance.push_back(calendar->advance(*it, QuantLib::Period(getFrequency(period)),
+                                            bdc, emr));
     }
     return advance;
 }
 
 // [[Rcpp::export]]
-std::vector<double> businessDaysBetween(std::string calendar,
-                                        std::vector<QuantLib::Date> from,
-                                        std::vector<QuantLib::Date> to,
-                                        bool includeFirst=true, bool includeLast=false) {
-    QuantLib::ext::shared_ptr<QuantLib::Calendar> pcal(getCalendar(calendar));
+std::vector<int> businessDaysBetween(const Rcpp::XPtr<QuantLib::Calendar>& calendar,
+                                     const std::vector<QuantLib::Date>& from,
+                                     const std::vector<QuantLib::Date>& to,
+                                     bool includeFirst,
+                                     bool includeLast) {
     int n = from.size();
-    std::vector<double> between(n);
-    for (int i=0; i<n; i++) {
-        between[i] = pcal->businessDaysBetween(from[i], to[i], includeFirst, includeLast);
+    std::vector<int> between(n);
+    for (int i = 0; i < n; i++) {
+        between[i] = calendar->businessDaysBetween(from[i], to[i],
+                                                   includeFirst, includeLast);
     }
     return between;
 }
 
 // [[Rcpp::export]]
-std::vector<QuantLib::Date> getHolidayList(std::string calendar,
+std::vector<QuantLib::Date> getHolidayList(const Rcpp::XPtr<QuantLib::Calendar>& calendar,
                                            QuantLib::Date from, QuantLib::Date to,
                                            bool includeWeekends=false) {
 
-    QuantLib::ext::shared_ptr<QuantLib::Calendar> pcal(getCalendar(calendar));
-    std::vector<QuantLib::Date> holidays = QuantLib::Calendar::holidayList(*pcal, from, to, includeWeekends);
-    return holidays;
+    return QuantLib::Calendar::holidayList(*calendar, from, to, includeWeekends);
 }
 
 // [[Rcpp::export]]
 void addHolidays(std::string calendar, std::vector<QuantLib::Date> dates) {
-    QuantLib::ext::shared_ptr<QuantLib::Calendar> pcal(getCalendar(calendar));
+    Rcpp::XPtr<QuantLib::Calendar> pcal = getCalendar(calendar);
     int n = dates.size();
     for (int i=0; i<n; i++) {
         pcal->addHoliday(dates[i]);
@@ -318,7 +317,7 @@ void addHolidays(std::string calendar, std::vector<QuantLib::Date> dates) {
 
 // [[Rcpp::export]]
 void removeHolidays(std::string calendar, std::vector<QuantLib::Date> dates) {
-    QuantLib::ext::shared_ptr<QuantLib::Calendar> pcal(getCalendar(calendar));
+    Rcpp::XPtr<QuantLib::Calendar> pcal = getCalendar(calendar);
     int n = dates.size();
     for (int i=0; i<n; i++) {
         pcal->removeHoliday(dates[i]);

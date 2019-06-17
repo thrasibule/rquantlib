@@ -83,7 +83,7 @@ ObservableDB::getRateHelper(std::string& ticker, QuantLib::Rate r, int fixDayCou
     QuantLib::TimeUnit units = p->getUnits();
 
     QuantLib::Date settlementDate = RQLContext::instance().settleDate;
-    QuantLib::Calendar calendar = RQLContext::instance().calendar;
+    QuantLib::Calendar calendar = *RQLContext::instance().calendar;
     QuantLib::Integer fixingDays = RQLContext::instance().fixingDays;
     QuantLib::DayCounter depositDayCounter = QuantLib::Actual360();
     bool endOfMonth = false;
@@ -92,7 +92,7 @@ ObservableDB::getRateHelper(std::string& ticker, QuantLib::Rate r, int fixDayCou
     if (type == RQLDeposit) {
         rh = QuantLib::ext::make_shared<QuantLib::DepositRateHelper>(
             r, n1*units, fixingDays,
-            calendar, QuantLib::ModifiedFollowing,
+                                                 calendar, QuantLib::ModifiedFollowing,
             endOfMonth, // false
             depositDayCounter);
     } else if (type == RQLSwap) {
@@ -139,7 +139,7 @@ ObservableDB::getRateHelper(std::string& ticker, QuantLib::Rate r, int fixDayCou
 // Return the term structure built using a set of RateHelpers (curveInput)
 // employing the specified interpolation method and day counter.
 QuantLib::YieldTermStructure*
-getTermStructure (std::string& interpWhat, std::string& interpHow, 
+getTermStructure (std::string& interpWhat, std::string& interpHow,
                   const QuantLib::Date& settlementDate,
                   const std::vector<QuantLib::ext::shared_ptr<QuantLib::RateHelper> >& curveInput,
                   QuantLib::DayCounter& dayCounter, QuantLib::Real tolerance) {

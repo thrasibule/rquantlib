@@ -82,7 +82,7 @@ Rcpp::List affineWithRebuiltCurveEngine(Rcpp::List rparam,
     QuantLib::Settings::instance().evaluationDate() = todaysDate;
 
     // initialise from the singleton instance
-    QuantLib::Calendar calendar = RQLContext::instance().calendar;
+    QuantLib::Calendar calendar = *(RQLContext::instance().calendar);
     //Integer fixingDays = RQLContext::instance().fixingDays;
 
     double strike = Rcpp::as<double>(rparam["strike"]);
@@ -106,7 +106,8 @@ Rcpp::List affineWithRebuiltCurveEngine(Rcpp::List rparam,
     QuantLib::Rate dummyFixedRate = 0.03;
 
     QuantLib::Schedule fixedSchedule(startDate,maturity,
-                                     QuantLib::Period(fixedLegFrequency),calendar,
+                                     QuantLib::Period(fixedLegFrequency),
+                                     calendar,
                                      fixedLegConvention,fixedLegConvention,
                                      QuantLib::DateGeneration::Forward, false);
     QuantLib::Schedule floatSchedule(startDate,

@@ -35,6 +35,7 @@ void calibrateModel(const QuantLib::ext::shared_ptr<QuantLib::ShortRateModel>& m
     QuantLib::LevenbergMarquardt om;
 
     model->calibrate(helpers, om,QuantLib:: EndCriteria(400,100,1.0e-8, 1.0e-8, 1.0e-8));
+    model->calibrate(helpers, om, QuantLib::EndCriteria(400,100,1.0e-8, 1.0e-8, 1.0e-8));
 
     // Output the implied Black volatilities
     for (QuantLib::Size i=0; i<numRows; i++) {
@@ -76,7 +77,7 @@ Rcpp::List bermudanFromYieldEngine(Rcpp::List rparam,
     std::string method = Rcpp::as<std::string>(rparam["method"]);
 
     // initialise from the singleton instance
-    QuantLib::Calendar calendar = RQLContext::instance().calendar;
+    QuantLib::Calendar calendar = *RQLContext::instance().calendar;
     //Integer fixingDays = RQLContext::instance().fixingDays;
 
     // Any DayCounter would be fine.
@@ -299,7 +300,7 @@ Rcpp::List bermudanWithRebuiltCurveEngine(Rcpp::List rparam,
     QuantLib::Settings::instance().evaluationDate() = todaysDate;
 
     // initialise from the singleton instance
-    QuantLib::Calendar calendar = RQLContext::instance().calendar;
+    QuantLib::Calendar calendar = *RQLContext::instance().calendar;
     //Integer fixingDays = RQLContext::instance().fixingDays;
 
     double strike = Rcpp::as<double>(rparam["strike"]);

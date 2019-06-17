@@ -101,6 +101,14 @@ fittedBondCurveEngine <- function(curveparam, length, coupons, marketQuotes, dat
     .Call(`_RQuantLib_fittedBondCurveEngine`, curveparam, length, coupons, marketQuotes, datemisc)
 }
 
+getCalendar <- function(calstr) {
+    .Call(`_RQuantLib_getCalendar`, calstr)
+}
+
+getCalendarName <- function(cal) {
+    .Call(`_RQuantLib_getCalendarName`, cal)
+}
+
 setCalendarContext <- function(calendar, fixingDays, settleDate) {
     .Call(`_RQuantLib_setCalendarContext`, calendar, fixingDays, settleDate)
 }
@@ -121,8 +129,8 @@ isEndOfMonth <- function(calendar, dates) {
     .Call(`_RQuantLib_isEndOfMonth`, calendar, dates)
 }
 
-getEndOfMonth <- function(calendar, dates) {
-    .Call(`_RQuantLib_getEndOfMonth`, calendar, dates)
+endOfMonth <- function(calendar, dates) {
+    .Call(`_RQuantLib_endOfMonth`, calendar, dates)
 }
 
 adjust <- function(calendar, dates, bdc = 0L) {
@@ -137,7 +145,7 @@ advance2 <- function(calendar, period, bdcVal, emr, dates) {
     .Call(`_RQuantLib_advance2`, calendar, period, bdcVal, emr, dates)
 }
 
-businessDaysBetween <- function(calendar, from, to, includeFirst = TRUE, includeLast = FALSE) {
+businessDaysBetween <- function(calendar, from, to, includeFirst, includeLast) {
     .Call(`_RQuantLib_businessDaysBetween`, calendar, from, to, includeFirst, includeLast)
 }
 

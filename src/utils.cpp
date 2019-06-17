@@ -124,7 +124,7 @@ QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure> buildTermStructure(Rcpp:
         }
 
         // initialise from the singleton instance
-        QuantLib::Calendar calendar = RQLContext::instance().calendar;
+        QuantLib::Calendar calendar = *RQLContext::instance().calendar;
         //Integer fixingDays = RQLContext::instance().fixingDays;
 
         // Any DayCounter would be fine;  ActualActual::ISDA ensures that 30 years is 30.0
@@ -166,14 +166,10 @@ QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure> buildTermStructure(Rcpp:
 QuantLib::Schedule getSchedule(Rcpp::List rparam) {
 
     QuantLib::Date effectiveDate(Rcpp::as<QuantLib::Date>(rparam["effectiveDate"]));
-    QuantLib::Date maturityDate(Rcpp::as<QuantLib::Date>(rparam["maturityDate"]));      
+    QuantLib::Date maturityDate(Rcpp::as<QuantLib::Date>(rparam["maturityDate"]));
     QuantLib::Period period = QuantLib::Period(getFrequency(Rcpp::as<int>(rparam["period"])));
     std::string cal = Rcpp::as<std::string>(rparam["calendar"]);
-    QuantLib::Calendar calendar;
-    if(!cal.empty()) {
-        QuantLib::ext::shared_ptr<QuantLib::Calendar> p = getCalendar(cal);
-        calendar = *p;
-    }
+    QuantLib::Calendar calendar = *getCalendar(cal);
     QuantLib::BusinessDayConvention businessDayConvention =
         getBusinessDayConvention(Rcpp::as<int>(rparam["businessDayConvention"]));
     QuantLib::BusinessDayConvention terminationDateConvention =
@@ -222,8 +218,7 @@ QuantLib::ext::shared_ptr<QuantLib::FixedRateBond> getFixedRateBond(
     }
     QuantLib::Calendar paymentCalendar;
     if(bondparam.containsElementNamed("paymentCalendar") ) {
-        QuantLib::ext::shared_ptr<QuantLib::Calendar> p = getCalendar(Rcpp::as<std::string>(bondparam["paymentCalendar"]));
-        paymentCalendar = *p;
+        paymentCalendar = *getCalendar(Rcpp::as<std::string>(bondparam["paymentCalendar"]));
     }
     QuantLib::Period exCouponPeriod;
     if(bondparam.containsElementNamed("exCouponPeriod") ) {
@@ -231,8 +226,7 @@ QuantLib::ext::shared_ptr<QuantLib::FixedRateBond> getFixedRateBond(
     }
     QuantLib::Calendar exCouponCalendar;
     if(bondparam.containsElementNamed("exCouponCalendar") ) {
-        QuantLib::ext::shared_ptr<QuantLib::Calendar> p = getCalendar(Rcpp::as<std::string>(bondparam["exCouponCalendar"]));
-        exCouponCalendar = *p;
+        exCouponCalendar = *getCalendar(Rcpp::as<std::string>(bondparam["exCouponCalendar"]));
     }
     QuantLib::BusinessDayConvention exCouponConvention = QuantLib::Unadjusted;
     if(bondparam.containsElementNamed("exCouponConvention") ) {
