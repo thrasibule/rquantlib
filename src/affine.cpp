@@ -109,11 +109,13 @@ Rcpp::List affineWithRebuiltCurveEngine(Rcpp::List rparam,
     QuantLib::Schedule fixedSchedule(startDate,maturity,
                                      QuantLib::Period(fixedLegFrequency),calendar,
                                      fixedLegConvention,fixedLegConvention,
-                                     QuantLib::DateGeneration::Forward,false);
-    QuantLib::Schedule floatSchedule(startDate,maturity,QuantLib::Period(Rcpp::as<int>(legparams["floatFreq"]),QuantLib::Months),
+                                     QuantLib::DateGeneration::Forward, false);
+    QuantLib::Schedule floatSchedule(startDate,
+                                     maturity,
+                                     QuantLib::Period(Rcpp::as<int>(legparams["floatFreq"]), QuantLib::Months),
                                      calendar,
                                      floatingLegConvention,floatingLegConvention,
-                                     QuantLib::DateGeneration::Forward,false);
+                                     QuantLib::DateGeneration::Forward, false);
 
     QuantLib::VanillaSwap::Type type;
 
@@ -240,7 +242,6 @@ Rcpp::List affineWithRebuiltCurveEngine(Rcpp::List rparam,
                                   Rcpp::Named("NPV") = affineSwaption.NPV(),
                                   Rcpp::Named("ATMStrike") = fixedATMRate);
         //Rcpp::Named("params") = params);
-
 
     } else if (method.compare("BKTree") == 0) {
         auto modelBK = qlext::make_shared<QuantLib::BlackKarasinski>(rhTermStructure);

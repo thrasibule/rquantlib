@@ -230,7 +230,7 @@ qlext::shared_ptr<QuantLib::FixedRateBond> getFixedRateBond(Rcpp::List bondparam
     }
     bool exCouponEndOfMonth = false;
     if(bondparam.containsElementNamed("exCouponEndOfMonth") ) {
-        exCouponEndOfMonth = (Rcpp::as<double>(bondparam["exCouponEndOfMonth"]) == 1) ? true : false;
+        exCouponEndOfMonth = Rcpp::as<bool>(bondparam["exCouponEndOfMonth"]);
     }
 
     QuantLib::Schedule schedule = getSchedule(scheduleparam);

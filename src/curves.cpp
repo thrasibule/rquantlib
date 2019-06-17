@@ -86,62 +86,58 @@ ObservableDB::getRateHelper(std::string& ticker, QuantLib::Rate r, double fixDay
     QuantLib::Calendar calendar = RQLContext::instance().calendar;
     QuantLib::Integer fixingDays = RQLContext::instance().fixingDays;
     QuantLib::DayCounter depositDayCounter = QuantLib::Actual360();
+    bool endOfMonth = false;
 
-    // Tried to use a switch statement here, but there was an
-    // internal compiler error using g++ Version 3.2.2.
+    QuantLib::ext::shared_ptr<QuantLib::RateHelper> rh;
     if (type == RQLDeposit) {
-        QuantLib::ext::shared_ptr<QuantLib::Quote> quote(new QuantLib::SimpleQuote(r));
-        QuantLib::ext::shared_ptr<QuantLib::RateHelper>
-            depo(new QuantLib::DepositRateHelper(QuantLib::Handle<QuantLib::Quote>(quote),
-                                                 n1*units, fixingDays,
-                                                 calendar, QuantLib::ModifiedFollowing,
-                                                 true, /*fixingDays,*/ depositDayCounter));
-        return depo;
+        rh = QuantLib::ext::make_shared<QuantLib::DepositRateHelper>(
+            r, n1*units, fixingDays,
+            calendar, QuantLib::ModifiedFollowing,
+            endOfMonth, // false
+            depositDayCounter);
     } else if (type == RQLSwap) {
         QuantLib::Frequency swFixedLegFrequency = getFrequency(fixFreq);
         QuantLib::BusinessDayConvention swFixedLegConvention = QuantLib::Unadjusted;
         QuantLib::DayCounter swFixedLegDayCounter = getDayCounter(fixDayCount);
-        QuantLib::ext::shared_ptr<QuantLib::IborIndex> swFloatingLegIndex(new QuantLib::Euribor(QuantLib::Period(floatFreq,QuantLib::Months)));
-        QuantLib::ext::shared_ptr<QuantLib::Quote> quote(new QuantLib::SimpleQuote(r));
-        QuantLib::ext::shared_ptr<QuantLib::RateHelper>
-            swap(new QuantLib::SwapRateHelper(QuantLib::Handle<QuantLib::Quote>(quote),
-                                              n1*QuantLib::Years, /*fixingDays,*/
-                                              calendar, swFixedLegFrequency,
-                                              swFixedLegConvention, swFixedLegDayCounter,
-                                              swFloatingLegIndex));
-        return swap;
+        QuantLib::ext::shared_ptr<QuantLib::IborIndex>
+            swFloatingLegIndex = QuantLib::ext::make_shared<QuantLib::IborIndex>(
+                "WOIbor", floatFreq * QuantLib::Months,
+                fixingDays, // settlement days
+                QuantLib::EURCurrency(),
+                calendar,
+                QuantLib::ModifiedFollowing,
+                endOfMonth, // false
+                QuantLib::Actual360());
+        rh = QuantLib::ext::make_shared<QuantLib::SwapRateHelper>(
+            r, n1*QuantLib::Years,
+            calendar, swFixedLegFrequency,
+            swFixedLegConvention,
+            swFixedLegDayCounter,
+            swFloatingLegIndex);
     } else if (type == RQLFuture) {
         QuantLib::Integer futMonths = 3;
         QuantLib::Date imm = QuantLib::IMM::nextDate(settlementDate);
         for (int i = 1; i < n1; i++)
             imm = QuantLib::IMM::nextDate(imm+1);
         //Rcpp::Rcout << "Curves: IMM Date is " << imm << std::endl;
-        QuantLib::ext::shared_ptr<QuantLib::Quote> quote(new QuantLib::SimpleQuote(r));
-        QuantLib::ext::shared_ptr<QuantLib::RateHelper>
-            future(new QuantLib::FuturesRateHelper(QuantLib::Handle<QuantLib::Quote>(quote),
-                                                   imm, futMonths, calendar,
-                                                   QuantLib::ModifiedFollowing,
-                                                   true, // added bool endOfMonth variable
-                                                   depositDayCounter));
-        return future;
+        rh  = QuantLib::ext::make_shared<QuantLib::FuturesRateHelper>(
+            r, imm, futMonths, calendar,
+            QuantLib::ModifiedFollowing,
+            endOfMonth, // false
+            depositDayCounter);
     } else if (type == RQLFRA) {
-        QuantLib::ext::shared_ptr<QuantLib::Quote> quote(new QuantLib::SimpleQuote(r));
-        QuantLib::ext::shared_ptr<QuantLib::RateHelper>
-            FRA(new QuantLib::FraRateHelper(QuantLib::Handle<QuantLib::Quote>(quote),
-                                            n1, n2, fixingDays, calendar,
-                                            QuantLib::ModifiedFollowing,
-                                            true, /*fixingDays,*/ depositDayCounter));
-        return FRA;
+        rh = QuantLib::ext::make_shared<QuantLib::FraRateHelper>(r, n1, n2, fixingDays, calendar,
+                                                                 QuantLib::ModifiedFollowing,
+                                                                 endOfMonth, // false
+                                                                 depositDayCounter);
     } else {
         Rcpp::stop("Bad type in curve construction");
     }
-    // not reached
-    QuantLib::ext::shared_ptr<QuantLib::RateHelper> tmp;
-    return tmp;
+    return rh;
 }
 
 //*** original rate helper, kept to ensure Bermudan works. Change in future - Terry Leitch 16 Mar '16
-QuantLib::ext::shared_ptr<QuantLib::RateHelper>
+QuantLib::ext::shared_ptr<QuantLib::RateHelper> 
 ObservableDB::getRateHelper(std::string& ticker, QuantLib::Rate r) {
     RQLMapIterator iter = db_.find(ticker);
     if (iter == db_.end()) {
@@ -216,7 +212,7 @@ ObservableDB::getRateHelper(std::string& ticker, QuantLib::Rate r) {
 // Return the term structure built using a set of RateHelpers (curveInput)
 // employing the specified interpolation method and day counter.
 QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure>
-getTermStructure (std::string& interpWhat, std::string& interpHow,
+getTermStructure (const std::string& interpWhat, const std::string& interpHow,
                   const QuantLib::Date& settlementDate,
                   const std::vector<QuantLib::ext::shared_ptr<QuantLib::RateHelper> >& curveInput,
                   QuantLib::DayCounter& dayCounter, QuantLib::Real tolerance) {
