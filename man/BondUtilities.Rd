@@ -17,11 +17,12 @@ matchBDC(bdc = c("Following", "ModifiedFollowing", "Preceding",
                  "ModifiedPreceding", "Unadjusted",
                  "HalfMonthModifiedFollowing", "Nearest"))
 matchCompounding(cp = c("Simple", "Compounded", "Continuous", "SimpleThenCompounded")) 
-matchDayCounter(daycounter = c("Actual360", "ActualFixed", "ActualActual", "Business252",
-                              "OneDayCounter", "SimpleDayCounter", "Thirty360",
-                              "Actual365NoLeap", "ActualActual.ISMA", "ActualActual.Bond",
-                              "ActualActual.ISDA", "ActualActual.Historical",
-                              "ActualActual.AFB", "ActualActual.Euro"))
+matchDayCounter(daycounter = c("Actual360", "Actual365Fixed", "ActualActual",
+                               "Business252", "OneDayCounter", "SimpleDayCounter",
+                               "Thirty360", "Actual365NoLeap", "ActualActual.ISMA",
+                               "ActualActual.Bond", "ActualActual.ISDA",
+                               "ActualActual.Historical", "ActualActual.AFB",
+                               "ActualActual.Euro"))
 matchDateGen(dg = c("Backward", "Forward", "Zero", "ThirdWednesday",
                     "Twentieth", "TwentiethIMM", "OldCDS", "CDS", "CDS2015"))
 matchFrequency(freq = c("NoFrequency","Once", "Annual", "Semiannual",

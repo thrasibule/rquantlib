@@ -88,7 +88,7 @@ isHoliday(calendar, dates)
 isWeekend(calendar, dates)
 isEndOfMonth(calendar, dates)
 getEndOfMonth(calendar, dates)
-endOfMonth(calendar="TARGET", dates=Sys.Date())
+endOfMonth(calendar, dates)
 getHolidayList(calendar, from, to, includeWeekends=FALSE) 
 holidayList(calendar="TARGET", from=Sys.Date(), to = Sys.Date() + 5,
 includeWeekends = FALSE)
