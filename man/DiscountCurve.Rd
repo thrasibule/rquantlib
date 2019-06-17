@@ -12,7 +12,7 @@
   as input.
 }
 \usage{
-DiscountCurve(params, tsQuotes, times, legparams)
+DiscountCurve(params, tsQuotes, legparams)
 }
 \arguments{
   \item{params}{A list specifying the \code{tradeDate} (month/day/year),
