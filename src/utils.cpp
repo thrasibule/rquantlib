@@ -48,38 +48,37 @@ makeOption(const QuantLib::ext::shared_ptr<QuantLib::StrikedTypePayoff>& payoff,
 
     QuantLib::ext::shared_ptr<QuantLib::GeneralizedBlackScholesProcess> stochProcess = makeProcess(u,q,r,vol);
     QuantLib::ext::shared_ptr<QuantLib::PricingEngine> engine;
-    typedef QuantLib::ext::shared_ptr<QuantLib::PricingEngine> spPE; // shorthand used below
 
     switch (engineType) {
     case Analytic:
-        engine = spPE(new QuantLib::AnalyticEuropeanEngine(stochProcess));
+        engine = QuantLib::ext::make_shared<QuantLib::AnalyticEuropeanEngine>(stochProcess);
         break;
     case JR:
-        engine = spPE(new QuantLib::BinomialVanillaEngine<QuantLib::JarrowRudd>(stochProcess, binomialSteps));
+        engine = QuantLib::ext::make_shared<QuantLib::BinomialVanillaEngine<QuantLib::JarrowRudd>>(stochProcess, binomialSteps);
         break;
     case CRR:
-        engine = spPE(new QuantLib::BinomialVanillaEngine<QuantLib::CoxRossRubinstein>(stochProcess, binomialSteps));
+        engine = QuantLib::ext::make_shared<QuantLib::BinomialVanillaEngine<QuantLib::CoxRossRubinstein>>(stochProcess, binomialSteps);
         break;
     case EQP:
-        engine = spPE(new QuantLib::BinomialVanillaEngine<QuantLib::AdditiveEQPBinomialTree>(stochProcess, binomialSteps));
+        engine = QuantLib::ext::make_shared<QuantLib::BinomialVanillaEngine<QuantLib::AdditiveEQPBinomialTree>>(stochProcess, binomialSteps);
         break;
     case TGEO:
-        engine = spPE(new QuantLib::BinomialVanillaEngine<QuantLib::Trigeorgis>(stochProcess, binomialSteps));
+        engine = QuantLib::ext::make_shared<QuantLib::BinomialVanillaEngine<QuantLib::Trigeorgis>>(stochProcess, binomialSteps);
         break;
     case TIAN:
-        engine = spPE(new QuantLib::BinomialVanillaEngine<QuantLib::Tian>(stochProcess, binomialSteps));
+        engine = QuantLib::ext::make_shared<QuantLib::BinomialVanillaEngine<QuantLib::Tian>>(stochProcess, binomialSteps);
         break;
     case LR:
-        engine = spPE(new QuantLib::BinomialVanillaEngine<QuantLib::LeisenReimer>(stochProcess, binomialSteps));
+        engine = QuantLib::ext::make_shared<QuantLib::BinomialVanillaEngine<QuantLib::LeisenReimer>>(stochProcess, binomialSteps);
         break;
     case JOSHI:
-        engine = spPE(new QuantLib::BinomialVanillaEngine<QuantLib::Joshi4>(stochProcess, binomialSteps));
+        engine = QuantLib::ext::make_shared<QuantLib::BinomialVanillaEngine<QuantLib::Joshi4>>(stochProcess, binomialSteps);
         break;
     case FiniteDifferences:
-        engine = spPE(new QuantLib::FDEuropeanEngine<QuantLib::CrankNicolson>(stochProcess, binomialSteps, samples));
+        engine = QuantLib::ext::make_shared<QuantLib::FdBlackScholesVanillaEngine>(stochProcess, binomialSteps, samples, 0, QuantLib::FdmSchemeDesc::CrankNicolson());
         break;
     case Integral:
-        engine = spPE(new QuantLib::IntegralEngine(stochProcess));
+        engine = QuantLib::ext::make_shared<QuantLib::IntegralEngine>(stochProcess);
         break;
     case PseudoMonteCarlo:
         engine = QuantLib::MakeMCEuropeanEngine<QuantLib::PseudoRandom>(stochProcess)
@@ -487,7 +486,7 @@ QuantLib::CallabilitySchedule getCallabilitySchedule(Rcpp::DataFrame callScheDF)
             Rcpp::Date rd = Rcpp::Date(n2v[row]);
             QuantLib::Date d(Rcpp::as<QuantLib::Date>(Rcpp::wrap(rd)));
             callabilitySchedule.push_back(QuantLib::ext::make_shared<QuantLib::Callability>(
-                                              QuantLib::Callability::Price(price, QuantLib::Callability::Price::Clean),
+                                              QuantLib::Bond::Price(price, QuantLib::Bond::Price::Clean),
                                               type,
                                               d));
         }

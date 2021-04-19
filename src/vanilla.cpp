@@ -152,14 +152,16 @@ Rcpp::List americanOptionEngine(std::string type,
     QuantLib::Date exDate = today + length;
 #endif
 
-    QuantLib::ext::shared_ptr<QuantLib::StrikedTypePayoff> payoff(new QuantLib::PlainVanillaPayoff(optionType, strike));
-    QuantLib::ext::shared_ptr<QuantLib::Exercise> exercise(new QuantLib::AmericanExercise(today, exDate));
+    QuantLib::ext::shared_ptr<QuantLib::StrikedTypePayoff> payoff = QuantLib::ext::make_shared<QuantLib::PlainVanillaPayoff>(optionType, strike);
+    QuantLib::ext::shared_ptr<QuantLib::Exercise> exercise = QuantLib::ext::make_shared<QuantLib::AmericanExercise>(today, exDate);
 
-    QuantLib::ext::shared_ptr<QuantLib::BlackScholesMertonProcess>
-        stochProcess(new QuantLib::BlackScholesMertonProcess(QuantLib::Handle<QuantLib::Quote>(spot),
-                                                             QuantLib::Handle<QuantLib::YieldTermStructure>(qTS),
-                                                             QuantLib::Handle<QuantLib::YieldTermStructure>(rTS),
-                                                             QuantLib::Handle<QuantLib::BlackVolTermStructure>(volTS)));
+    QuantLib::ext::shared_ptr<QuantLib::BlackScholesMertonProcess> stochProcess =
+        QuantLib::ext::make_shared<QuantLib::BlackScholesMertonProcess>(
+            QuantLib::Handle<QuantLib::Quote>(spot),
+            QuantLib::Handle<QuantLib::YieldTermStructure>(qTS),
+            QuantLib::Handle<QuantLib::YieldTermStructure>(rTS),
+            QuantLib::Handle<QuantLib::BlackVolTermStructure>(volTS)
+            );
 
     if (withDividends) {
         Rcpp::NumericVector divvalues(discreteDividends), divtimes(discreteDividendsTimeUntil);
@@ -184,8 +186,8 @@ Rcpp::List americanOptionEngine(std::string type,
 
         if (engine=="CrankNicolson") { // FDDividendAmericanEngine only works with CrankNicolson
             // suggestion by Bryan Lewis: use CrankNicolson for greeks
-            QuantLib::ext::shared_ptr<QuantLib::PricingEngine>
-            fdcnengine(new QuantLib::FDDividendAmericanEngine<QuantLib::CrankNicolson>(stochProcess, timeSteps, gridPoints));
+            QuantLib::ext::shared_ptr<QuantLib::PricingEngine> fdcnengine =
+                QuantLib::ext::make_shared<QuantLib::FdBlackScholesVanillaEngine>(stochProcess, timeSteps, gridPoints);
             option.setPricingEngine(fdcnengine);
             return Rcpp::List::create(Rcpp::Named("value") = option.NPV(),
                                       Rcpp::Named("delta") = option.delta(),
@@ -204,7 +206,7 @@ Rcpp::List americanOptionEngine(std::string type,
         if (engine=="BaroneAdesiWhaley") {
             // new from 0.3.7 BaroneAdesiWhaley
 
-            QuantLib::ext::shared_ptr<QuantLib::PricingEngine> engine(new QuantLib::BaroneAdesiWhaleyApproximationEngine(stochProcess));
+            QuantLib::ext::shared_ptr<QuantLib::PricingEngine> engine = QuantLib::ext::make_shared<QuantLib::BaroneAdesiWhaleyApproximationEngine>(stochProcess);
             option.setPricingEngine(engine);
             return Rcpp::List::create(Rcpp::Named("value") = option.NPV(),
                                       Rcpp::Named("delta") = R_NaReal,
@@ -215,8 +217,7 @@ Rcpp::List americanOptionEngine(std::string type,
                                       Rcpp::Named("divRho") = R_NaReal);
         } else if (engine=="CrankNicolson") {
             // suggestion by Bryan Lewis: use CrankNicolson for greeks
-            QuantLib::ext::shared_ptr<QuantLib::PricingEngine>
-            fdcnengine(new QuantLib::FDAmericanEngine<QuantLib::CrankNicolson>(stochProcess, timeSteps, gridPoints));
+            QuantLib::ext::shared_ptr<QuantLib::PricingEngine> fdcnengine = QuantLib::ext::make_shared<QuantLib::FdBlackScholesVanillaEngine>(stochProcess, timeSteps, gridPoints);
             option.setPricingEngine(fdcnengine);
             return Rcpp::List::create(Rcpp::Named("value") = option.NPV(),
                                       Rcpp::Named("delta") = option.delta(),
@@ -264,7 +265,7 @@ Rcpp::List europeanOptionArraysEngine(std::string type, Rcpp::NumericMatrix par)
         QuantLib::ext::shared_ptr<QuantLib::BlackVolTermStructure> volTS = flatVol(today, vol, dc);
         QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure> qTS = flatRate(today, dividendYield, dc);
         QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure> rTS = flatRate(today, riskFreeRate, dc);
-        
+
 #ifdef QL_HIGH_RESOLUTION_DATE
     QuantLib::Date exDate(today.dateTime() + length);
 #else
