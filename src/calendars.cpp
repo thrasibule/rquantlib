@@ -358,15 +358,10 @@ std::vector<QuantLib::Date> getHolidayList(const Rcpp::XPtr<QuantLib::Calendar>&
 }
 
 // [[Rcpp::export]]
-std::vector<QuantLib::Date> getBusinessDayList(std::string calendar,
+std::vector<QuantLib::Date> getBusinessDayList(const Rcpp::XPtr<QuantLib::Calendar>& calendar,
                                                QuantLib::Date from, QuantLib::Date to) {
 
-    QuantLib::ext::shared_ptr<QuantLib::Calendar> pcal(getCalendar(calendar));
-    std::vector<QuantLib::Date> bizdays;
-#if QL_HEX_VERSION >= 0x011800f0
-    bizdays = pcal->businessDayList(from, to);
-#endif
-    return bizdays;
+    return calendar->businessDayList(from, to);
 }
 
 

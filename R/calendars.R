@@ -72,6 +72,9 @@ Calendar <- R6Class("Calendar",
                         getHolidayList = function(from = Sys.Date(), to=Sys.Date() + 5,
                             includeWeekends=FALSE) {
                             getHolidayList(private$ptr, from, to, includeWeekends)
+                        },
+                        getBusinessDayList = function(from = Sys.Date(), to=Sys.Date() + 5) {
+                            getBusinessDayList(private$ptr, from , to)
                         }
                     ),
                     private = list(

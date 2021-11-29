@@ -1069,12 +1069,12 @@ BEGIN_RCPP
 END_RCPP
 }
 // getBusinessDayList
-std::vector<QuantLib::Date> getBusinessDayList(std::string calendar, QuantLib::Date from, QuantLib::Date to);
+std::vector<QuantLib::Date> getBusinessDayList(const Rcpp::XPtr<QuantLib::Calendar>& calendar, QuantLib::Date from, QuantLib::Date to);
 RcppExport SEXP _RQuantLib_getBusinessDayList(SEXP calendarSEXP, SEXP fromSEXP, SEXP toSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< std::string >::type calendar(calendarSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::XPtr<QuantLib::Calendar>& >::type calendar(calendarSEXP);
     Rcpp::traits::input_parameter< QuantLib::Date >::type from(fromSEXP);
     Rcpp::traits::input_parameter< QuantLib::Date >::type to(toSEXP);
     rcpp_result_gen = Rcpp::wrap(getBusinessDayList(calendar, from, to));
