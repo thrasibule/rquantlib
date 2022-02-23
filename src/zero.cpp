@@ -93,7 +93,7 @@ Rcpp::DataFrame zbtyield(std::vector<QuantLib::Date> MatDates,
     QuantLib::Settings::instance().evaluationDate() = todaysDate;
     QuantLib::Period p(QuantLib::Semiannual);
     double faceAmount = 100;
-    QuantLib::DayCounter dayCounter = QuantLib::ActualActual();
+    QuantLib::DayCounter dayCounter = QuantLib::ActualActual(QuantLib::ActualActual::ISDA);
     bool emr = true;
     for (QuantLib::Size  j = 0; j< numberOfBonds;j++){
 

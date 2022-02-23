@@ -27,18 +27,20 @@ Rcpp::XPtr<QuantLib::DayCounter> getDaycounter(const int n) {
     else if (n==1)
         dc = new QuantLib::Actual365Fixed();
     else if (n==2)
-        dc = new QuantLib::ActualActual();
+        dc = new QuantLib::ActualActual(QuantLib::ActualActual::ISDA); // reasonable default for back compatibility
     else if (n==3)
         dc = new QuantLib::Business252();
     else if (n==4)
         dc = new QuantLib::OneDayCounter();
     else if (n==5)
         dc = new QuantLib::SimpleDayCounter();
-    else if (n==6)
-        dc = new QuantLib::Thirty360();
-    else if (n==7)
-        dc = new QuantLib::Actual365Fixed(QuantLib::Actual365Fixed::NoLeap);
-    else if (n==8)
+     else if (n==6)
+        dc = new QuantLib::Thirty360(QuantLib::Thirty360::BondBasis);  // reasonable default for back compatibility
+#ifdef RQUANTLIB_USE_ACTUAL365NOLEAP
+     else if (n==7)
+         dc = new QuantLib::Actual365NoLeap();
+#endif
+      else if (n==8)
         dc = new QuantLib::ActualActual(QuantLib::ActualActual::ISMA);
     else if (n==9)
         dc = new QuantLib::ActualActual(QuantLib::ActualActual::Bond);
@@ -48,8 +50,24 @@ Rcpp::XPtr<QuantLib::DayCounter> getDaycounter(const int n) {
         dc = new QuantLib::ActualActual(QuantLib::ActualActual::Historical);
     else if (n==12)
         dc = new QuantLib::ActualActual(QuantLib::ActualActual::AFB);
-    else // if (n==13)
+    else if (n==13)
         dc = new QuantLib::ActualActual(QuantLib::ActualActual::Euro);
+    else if (n==14)
+        dc = new QuantLib::Thirty360(QuantLib::Thirty360::USA);
+    else if (n==15)
+        dc = new QuantLib::Thirty360(QuantLib::Thirty360::BondBasis);
+    else if (n==16)
+        dc = new QuantLib::Thirty360(QuantLib::Thirty360::European);
+    else if (n==17)
+        dc = new QuantLib::Thirty360(QuantLib::Thirty360::EurobondBasis);
+    else if (n==18)
+        dc = new QuantLib::Thirty360(QuantLib::Thirty360::Italian);
+    else if (n==19)
+        dc = new QuantLib::Thirty360(QuantLib::Thirty360::German);
+    else
+        // Stop on verbose error -- Do not silently default to the arbitrarily
+        // last else statement because it can conceal bugs in user code.
+        Rcpp::stop("Unknown option '%d'", n);
     return Rcpp::XPtr<QuantLib::DayCounter>(dc, true);
 }
 
