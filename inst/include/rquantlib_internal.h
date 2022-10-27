@@ -62,7 +62,7 @@ public:
 };
 
 // Instrument types used to construct the yield curve.
-enum RQLObservableType { RQLDeposit, RQLSwap, RQLFuture, RQLFRA };
+enum RQLObservableType { RQLDeposit, RQLSwap, RQLFuture, RQLFRA, RQLOIS };
 
 // Used to identify the specifics of a particular contract.
 class RQLObservable {

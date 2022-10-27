@@ -64,12 +64,31 @@ ObservableDB::ObservableDB() {
     db_["fra3x6"] = new RQLObservable(RQLFRA, 3, 6, QuantLib::Months);
     db_["fra6x9"] = new RQLObservable(RQLFRA, 6, 9, QuantLib::Months);
     db_["fra6x12"] = new RQLObservable(RQLFRA, 6, 12, QuantLib::Months);
+    db_["ois1m"] = new RQLObservable(RQLOIS, 1, 0, QuantLib::Months);
+    db_["ois2m"] = new RQLObservable(RQLOIS, 2, 0, QuantLib::Months);
+    db_["ois3m"] = new RQLObservable(RQLOIS, 3, 0, QuantLib::Months);
+    db_["ois6m"] = new RQLObservable(RQLOIS, 6, 0, QuantLib::Months);
+    db_["ois1y"] = new RQLObservable(RQLOIS, 1, 0, QuantLib::Years);
+    db_["ois2y"] = new RQLObservable(RQLOIS, 2, 0, QuantLib::Years);
+    db_["ois3y"] = new RQLObservable(RQLOIS, 3, 0, QuantLib::Years);
+    db_["ois4y"] = new RQLObservable(RQLOIS, 4, 0, QuantLib::Years);
+    db_["ois5y"] = new RQLObservable(RQLOIS, 5, 0, QuantLib::Years);
+    db_["ois6y"] = new RQLObservable(RQLOIS, 6, 0, QuantLib::Years);
+    db_["ois7y"] = new RQLObservable(RQLOIS, 7, 0, QuantLib::Years);
+    db_["ois8y"] = new RQLObservable(RQLOIS, 8, 0, QuantLib::Years);
+    db_["ois9y"] = new RQLObservable(RQLOIS, 9, 0, QuantLib::Years);
+    db_["ois10y"] = new RQLObservable(RQLOIS, 10, 0, QuantLib::Years);
+    db_["ois12y"] = new RQLObservable(RQLOIS, 12, 0, QuantLib::Years);
+    db_["ois15y"] = new RQLObservable(RQLOIS, 15, 0, QuantLib::Years);
+    db_["ois20y"] = new RQLObservable(RQLOIS, 20, 0, QuantLib::Years);
+    db_["ois25y"] = new RQLObservable(RQLOIS, 25, 0, QuantLib::Years);
+    db_["ois30y"] = new RQLObservable(RQLOIS, 30, 0, QuantLib::Years);
 }
 
 
 // Get RateHelper used to build the yield curve corresponding to a
 // database key ('ticker') and observed rate/price.
-QuantLib::ext::shared_ptr<QuantLib::RateHelper> 
+QuantLib::ext::shared_ptr<QuantLib::RateHelper>
 ObservableDB::getRateHelper(std::string& ticker, QuantLib::Rate r, int fixDayCount,
                             int fixFreq, int floatFreq) {
     RQLMapIterator iter = db_.find(ticker);
@@ -109,7 +128,7 @@ ObservableDB::getRateHelper(std::string& ticker, QuantLib::Rate r, int fixDayCou
                 endOfMonth, // false
                 QuantLib::Actual360());
         rh = QuantLib::ext::make_shared<QuantLib::SwapRateHelper>(
-            r, n1*QuantLib::Years,
+            r, n1 * units,
             calendar, swFixedLegFrequency,
             swFixedLegConvention,
             swFixedLegDayCounter,
@@ -130,6 +149,27 @@ ObservableDB::getRateHelper(std::string& ticker, QuantLib::Rate r, int fixDayCou
                                                                  QuantLib::ModifiedFollowing,
                                                                  endOfMonth, // false
                                                                  depositDayCounter);
+    } else if (type == RQLOIS) {
+        QuantLib::ext::shared_ptr<QuantLib::OvernightIndex>
+            overnightIndex = QuantLib::ext::make_shared<QuantLib::OvernightIndex>(
+                "IsdaON", 0, QuantLib::USDCurrency(), calendar, QuantLib::Actual360()
+                );
+        rh = QuantLib::ext::make_shared<QuantLib::OISRateHelper>(2, n1 * units,
+                                                                QuantLib::Handle<QuantLib::Quote>(QuantLib::ext::make_shared<QuantLib::SimpleQuote>(r)),
+                                                                overnightIndex,
+                                                                QuantLib::Handle<QuantLib::YieldTermStructure>(),
+                                                                true,
+                                                                0,
+                                                                QuantLib::ModifiedFollowing,
+                                                                QuantLib::Annual,
+                                                                calendar,
+                                                                0 * QuantLib::Days,
+                                                                0.0,
+                                                                QuantLib::Pillar::LastRelevantDate,
+                                                                QuantLib::Date(),
+                                                                QuantLib::RateAveraging::Compound,
+                                                                boost::optional<bool>(endOfMonth)); //false
+
     } else {
         Rcpp::stop("Bad type in curve construction");
     }
