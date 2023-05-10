@@ -73,7 +73,7 @@ namespace {
             std::vector<Handle<Quote> > qSwAtmTmp;
             for (unsigned int j = 0; j < numTenor; j++) {
                 double qt=atmVols(i,j);
-                qSwAtmTmp.push_back(Handle<Quote>(QuantLib::ext::shared_ptr<Quote>(new SimpleQuote(qt))));
+                qSwAtmTmp.push_back(Handle<Quote>(QuantLib::ext::make_shared<SimpleQuote>(qt)));
             }
             qSwAtm.push_back(qSwAtmTmp);
         }
@@ -118,7 +118,7 @@ namespace {
             std::vector<Handle<Quote> > qSwSmileTmp;
             for (unsigned int j = 0; j < numStrike; j++) {
                 double qt=smirkVols(i,j);
-                qSwSmileTmp.push_back(Handle<Quote>(QuantLib::ext::shared_ptr<Quote>(new SimpleQuote(qt))));
+                qSwSmileTmp.push_back(Handle<Quote>(QuantLib::ext::make_shared<SimpleQuote>(qt)));
             }
             qSwSmile.push_back(qSwSmileTmp);
         }
@@ -137,7 +137,7 @@ namespace {
         for (unsigned int i = 0; i < numExp*numTenor; i++) {
             std::vector<Handle<Quote> > parameterGuessTmp;
             for (unsigned int j = 0; j < 4; j++) {
-                parameterGuessTmp.push_back(Handle<Quote>(QuantLib::ext::shared_ptr<Quote>(new SimpleQuote(qSwSmileh1[j]))));
+                parameterGuessTmp.push_back(Handle<Quote>(QuantLib::ext::make_shared<SimpleQuote>(qSwSmileh1[j])));
             }
             parameterGuess.push_back(parameterGuessTmp);
         }
@@ -149,15 +149,11 @@ namespace {
 
 
         Handle<SwpVolStr>
-#if QL_HEX_VERSION < 0x013000f0
-            res(QuantLib::ext::shared_ptr<SwpVolStr>(new SwaptionVolCube1(swaptionVolAtm, optionTenorsSmile,
-#else
-            res(QuantLib::ext::shared_ptr<SwpVolStr>(new SabrSwaptionVolatilityCube(swaptionVolAtm, optionTenorsSmile,
-#endif
-                                                                                    swapTenorsSmile, strikeSpreads, qSwSmile,
-                                                                                    swapIndex, shortSwapIndex, true,
-                                                                                    parameterGuess, parameterFixed, true, ec,
-                                                                                    .050)));
+            res(QuantLib::ext::make_shared<SabrSwaptionVolatilityCube>(swaptionVolAtm, optionTenorsSmile,
+                                                                  swapTenorsSmile, strikeSpreads, qSwSmile,
+                                                                  swapIndex, shortSwapIndex, true,
+                                                                  parameterGuess, parameterFixed, true, ec,
+                                                                  .050));
         // put a big error tolerance here ... we just want a
         // smooth cube for testing
 
@@ -199,8 +195,8 @@ Rcpp::List sabrengine(Rcpp::List rparam,
 
     Handle<SwaptionVolatilityStructure> volCube = swptnVolCube(swaptionMat,swapLengths,atmVols,
                                                                strikes,smirkVols,yldCrv);
-    QuantLib::ext::shared_ptr<IborIndex> iborIndex1(new Euribor(floatFreq * Months, yldCrv));
-    QuantLib::ext::shared_ptr<SwapIndex> swapIndexBase (new EuriborSwapIsdaFixA(fixFreq * Years));
+    QuantLib::ext::shared_ptr<IborIndex> iborIndex1 = QuantLib::ext::make_shared<Euribor>(floatFreq * Months, yldCrv);
+    QuantLib::ext::shared_ptr<SwapIndex> swapIndexBase = QuantLib::ext::make_shared<EuriborSwapIsdaFixA>(fixFreq * Years);
 
     // create swaps for european swaption here to get atm fwd rate, these are ignored for bermudan  //
     QuantLib::ext::shared_ptr<VanillaSwap> underlyingCall =

@@ -168,7 +168,7 @@ ObservableDB::getRateHelper(std::string& ticker, QuantLib::Rate r, int fixDayCou
                                                                 QuantLib::Pillar::LastRelevantDate,
                                                                 QuantLib::Date(),
                                                                 QuantLib::RateAveraging::Compound,
-                                                                boost::optional<bool>(endOfMonth)); //false
+                                                                QuantLib::ext::optional<bool>(endOfMonth)); //false
 
     } else {
         Rcpp::stop("Bad type in curve construction");
