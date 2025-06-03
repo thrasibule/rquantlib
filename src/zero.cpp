@@ -77,17 +77,6 @@ Rcpp::DataFrame zbtyield(std::vector<QuantLib::Date> MatDates,
 
     std::vector<qlext::shared_ptr<QuantLib::RateHelper> > instruments;
 
-    std::vector<qlext::shared_ptr<QuantLib::SimpleQuote> > quote;
-    for (QuantLib::Size i=0; i<numberOfBonds; i++) {
-        auto cp = qlext::make_shared<QuantLib::SimpleQuote>(cleanPrice[i]);
-        quote.push_back(cp);
-    }
-
-    std::vector< QuantLib::RelinkableHandle<QuantLib::Quote> > quoteHandle(numberOfBonds);
-    for (QuantLib::Size i=0; i<numberOfBonds; i++) {
-        quoteHandle[i].linkTo(quote[i]);
-    }
-
     QuantLib::Calendar calendar = *RQLContext::instance().calendar;
     QuantLib::Date todaysDate = calendar.advance(SettleDates[0], -2, QuantLib::Days);
     QuantLib::Settings::instance().evaluationDate() = todaysDate;
@@ -101,14 +90,14 @@ Rcpp::DataFrame zbtyield(std::vector<QuantLib::Date> MatDates,
             p = QuantLib::Period(getFrequency(bondparam(j,2)));
             faceAmount = bondparam(j,1);
             dayCounter = getDayCounter(bondparam(j,3));
-            emr = (bondparam(j,4)==0) ? false : true;
+            emr = bondparam(j,4) != 0;
         }
 
         QuantLib::Schedule schedule(SettleDates[j], MatDates[j],p, calendar,
                                     QuantLib::Unadjusted, QuantLib::Unadjusted,
                                     QuantLib::DateGeneration::Backward, emr);
         typedef QuantLib::FixedRateBondHelper qlFRBH;
-        auto helper = qlext::make_shared<qlFRBH>(quoteHandle[j], 1, faceAmount, schedule,
+        auto helper = qlext::make_shared<qlFRBH>(QuantLib::makeQuoteHandle(cleanPrice[j]), 1, faceAmount, schedule,
                                                  std::vector<QuantLib::Rate>(1,bondparam(j,0)),
                                                  dayCounter, QuantLib::Unadjusted, 100, SettleDates[j]);
         instruments.push_back(helper);
