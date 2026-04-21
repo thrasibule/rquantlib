@@ -122,8 +122,8 @@ qlext::shared_ptr<QuantLib::YieldTermStructure> buildTermStructure(Rcpp::List rp
     }
 
     // initialise from the singleton instance
-    QuantLib::Calendar calendar = RQLContext::instance().calendar;
-    //Integer fixingDays = RQLContext::instance().fixingDays;
+    QuantLib::Calendar calendar = *RQLContext::instance().calendar;
+    QuantLib::Integer fixingDays = RQLContext::instance().fixingDays;
 
     // Any DayCounter would be fine;  ActualActual::ISDA ensures that 30 years is 30.0
     QuantLib::DayCounter termStructureDayCounter = QuantLib::ActualActual(QuantLib::ActualActual::Convention::ISDA);
@@ -146,8 +146,7 @@ qlext::shared_ptr<QuantLib::YieldTermStructure> buildTermStructure(Rcpp::List rp
                 Rcpp::stop("Unknown rate in getRateHelper");
             curveInput.push_back(rh);
         }
-        auto ts = getTermStructure(interpWhat, interpHow, settlementDate, curveInput, termStructureDayCounter, tolerance);
-        curve = ts;
+        curve.reset(getTermStructure(interpWhat, interpHow, fixingDays, calendar, curveInput, termStructureDayCounter, tolerance));
     }
     return curve;
 }
@@ -156,7 +155,7 @@ QuantLib::Schedule getSchedule(Rcpp::List rparam) {
 
     QuantLib::Date effectiveDate(Rcpp::as<QuantLib::Date>(rparam["effectiveDate"]));
     QuantLib::Date maturityDate(Rcpp::as<QuantLib::Date>(rparam["maturityDate"]));
-    QuantLib::Period period = QuantLib::Period(getFrequency(Rcpp::as<double>(rparam["period"])));
+    QuantLib::Period period = QuantLib::Period(getFrequency(Rcpp::as<int>(rparam["period"])));
     std::string cal = Rcpp::as<std::string>(rparam["calendar"]);
     QuantLib::Calendar calendar;
     if(!cal.empty()) {
@@ -217,7 +216,7 @@ qlext::shared_ptr<QuantLib::FixedRateBond> getFixedRateBond(Rcpp::List bondparam
     }
     QuantLib::Period exCouponPeriod;
     if(bondparam.containsElementNamed("exCouponPeriod") ) {
-        exCouponPeriod = QuantLib::Period(Rcpp::as<double>(bondparam["exCouponPeriod"]), QuantLib::Days);
+        exCouponPeriod = QuantLib::Period(Rcpp::as<int>(bondparam["exCouponPeriod"]), QuantLib::Days);
     }
     QuantLib::Calendar exCouponCalendar;
     if(bondparam.containsElementNamed("exCouponCalendar") ) {
@@ -251,9 +250,8 @@ qlext::shared_ptr<QuantLib::YieldTermStructure> rebuildCurveFromZeroRates(std::v
 qlext::shared_ptr<QuantLib::YieldTermStructure> getFlatCurve(Rcpp::List curve) {
     QuantLib::Rate riskFreeRate = Rcpp::as<double>(curve["riskFreeRate"]);
     QuantLib::Date today(Rcpp::as<QuantLib::Date>(curve["todayDate"]));
-    auto rRate = qlext::make_shared<QuantLib::SimpleQuote>(riskFreeRate);
     QuantLib::Settings::instance().evaluationDate() = today;
-    return flatRate(today, rRate, QuantLib::Actual360());
+    return flatRate(today, riskFreeRate, QuantLib::Actual360());
 }
 
 qlext::shared_ptr<QuantLib::IborIndex> getIborIndex(Rcpp::List rparam, const QuantLib::Date today) {
@@ -261,22 +259,20 @@ qlext::shared_ptr<QuantLib::IborIndex> getIborIndex(Rcpp::List rparam, const Qua
     if (type == "USDLibor"){
         double riskFreeRate = Rcpp::as<double>(rparam["riskFreeRate"]);
         double period = Rcpp::as<double>(rparam["period"]);
-        auto rRate = qlext::make_shared<QuantLib::SimpleQuote>(riskFreeRate);
         QuantLib::Settings::instance().evaluationDate() = today;
-        QuantLib::Handle<QuantLib::YieldTermStructure> curve(flatRate(today, rRate, QuantLib::Actual360()));
+        QuantLib::Handle<QuantLib::YieldTermStructure> curve(flatRate(today, riskFreeRate, QuantLib::Actual360()));
         auto iindex = qlext::make_shared<QuantLib::USDLibor>(period * QuantLib::Months, curve);
         return iindex;
     }
     else return qlext::shared_ptr<QuantLib::IborIndex>();
 }
 
-// std::vector<double> getDoubleVector(SEXP vecSexp) {
-//     if (::Rf_length(vecSexp) == 0) {
-//         return(std::vector<double>());
-//     } else {
-//         return std::vector<double>( Rcpp::as<std::vector< double> >( Rcpp::NumericVector(vecSexp) ) );
-//     }
-// }
+QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure>
+flatRate(const QuantLib::Date& today,
+         double forward,
+         const QuantLib::DayCounter& dc) {
+    return qlext::make_shared<QuantLib::FlatForward>(today, forward, dc);
+}
 
 qlext::shared_ptr<QuantLib::YieldTermStructure> makeFlatCurve(const QuantLib::Date& today,
                                                               const qlext::shared_ptr<QuantLib::Quote>& forward,

@@ -42,10 +42,8 @@ Rcpp::List asianOptionEngine(std::string averageType,
     QuantLib::Settings::instance().evaluationDate() = today;
 
     auto spot = qlext::make_shared<QuantLib::SimpleQuote>(underlying);
-    auto qRate = qlext::make_shared<QuantLib::SimpleQuote>(dividendYield);
-    auto qTS = flatRate(today, qRate, dc);
-    auto rRate = qlext::make_shared<QuantLib::SimpleQuote>(riskFreeRate);
-    auto rTS  = flatRate(today, rRate, dc);
+    auto qTS = flatRate(today, dividendYield, dc);
+    auto rTS  = flatRate(today, riskFreeRate, dc);
     auto vol = qlext::make_shared<QuantLib::SimpleQuote>(volatility);
     auto volTS = flatVol(today, vol, dc);
 

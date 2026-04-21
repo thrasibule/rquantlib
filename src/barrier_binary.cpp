@@ -44,10 +44,8 @@ Rcpp::List binaryOptionEngine(std::string binType,
 
     QuantLib::DayCounter dc = getDayCounter(dayCounter);
     auto spot  = qlext::make_shared<QuantLib::SimpleQuote>(underlying);
-    auto qRate = qlext::make_shared<QuantLib::SimpleQuote>(dividendYield);
-    auto qTS   = flatRate(evalDate,qRate,dc);
-    auto rRate = qlext::make_shared<QuantLib::SimpleQuote>(riskFreeRate);
-    auto rTS   = flatRate(evalDate,rRate,dc);
+    auto qTS   = flatRate(evalDate, dividendYield, dc);
+    auto rTS   = flatRate(evalDate, riskFreeRate, dc);
     auto vol   = qlext::make_shared<QuantLib::SimpleQuote>(volatility);
     auto volTS = flatVol(evalDate, vol, dc);
 
@@ -121,10 +119,8 @@ double binaryOptionImpliedVolatilityEngine(std::string type,
     QuantLib::DayCounter dc = getDayCounter(dayCounter);
     QuantLib::Date expiryDate = getFutureDate(evalDate, maturity, exDate);
     auto spot  = qlext::make_shared<QuantLib::SimpleQuote>(underlying);
-    auto qRate = qlext::make_shared<QuantLib::SimpleQuote>(dividendYield);
-    auto qTS   = flatRate(evalDate, qRate, dc);
-    auto rRate = qlext::make_shared<QuantLib::SimpleQuote>(riskFreeRate);
-    auto rTS   = flatRate(evalDate, rRate, dc);
+    auto qTS   = flatRate(evalDate, dividendYield, dc);
+    auto rTS   = flatRate(evalDate, riskFreeRate, dc);
     auto vol   = qlext::make_shared<QuantLib::SimpleQuote>(volatility);
     auto volTS = flatVol(evalDate, vol, dc);
 
@@ -180,10 +176,8 @@ Rcpp::List barrierOptionEngine(std::string barrType,
     QuantLib::Date expiryDate = getFutureDate(evalDate, maturity, exDate);
     QuantLib::DayCounter dc = getDayCounter(dayCounter);
     auto spot = qlext::make_shared<QuantLib::SimpleQuote>(underlying);
-    auto qRate = qlext::make_shared<QuantLib::SimpleQuote>(dividendYield);
-    auto qTS = flatRate(evalDate, qRate, dc);
-    auto rRate = qlext::make_shared<QuantLib::SimpleQuote>(riskFreeRate);
-    auto rTS = flatRate(evalDate,rRate,dc);
+    auto qTS = flatRate(evalDate, dividendYield, dc);
+    auto rTS = flatRate(evalDate, riskFreeRate, dc);
     auto vol = qlext::make_shared<QuantLib::SimpleQuote>(volatility);
     auto volTS = flatVol(evalDate, vol, dc);
 

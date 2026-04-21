@@ -61,6 +61,11 @@ export(
     "setEvaluationDate",
     ##--dates.cpp
     "advanceDate",
+    ##--discount.cpp
+    "discountFactors",
+    "forwardRates",
+    "zeroRates",
+    "referenceDate",
     ##--discount.R
     "DiscountCurve",
     "plot.DiscountCurve",

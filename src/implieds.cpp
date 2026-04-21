@@ -49,10 +49,8 @@ double europeanOptionImpliedVolatilityEngine(std::string type,
     auto spot = qlext::make_shared<QuantLib::SimpleQuote>(underlying);
     auto vol = qlext::make_shared<QuantLib::SimpleQuote>(volatility);
     auto volTS = flatVol(evalDate, vol, dc);
-    auto qRate = qlext::make_shared<QuantLib::SimpleQuote>(dividendYield);
-    auto qTS = flatRate(evalDate,qRate,dc);
-    auto rRate = qlext::make_shared<QuantLib::SimpleQuote>(riskFreeRate);
-    auto rTS = flatRate(evalDate,rRate,dc);
+    auto qTS = flatRate(evalDate, dividendYield, dc);
+    auto rTS = flatRate(evalDate, riskFreeRate, dc);
 
     auto exercise = qlext::make_shared<QuantLib::EuropeanExercise>(expiryDate);
     auto payoff = qlext::make_shared<QuantLib::PlainVanillaPayoff>(optionType, strike);
@@ -93,10 +91,8 @@ double americanOptionImpliedVolatilityEngine(std::string type,
     auto spot = qlext::make_shared<QuantLib::SimpleQuote>(underlying);
     auto vol = qlext::make_shared<QuantLib::SimpleQuote>(volguess);
     auto volTS = flatVol(evalDate, vol,dc);
-    auto qRate = qlext::make_shared<QuantLib::SimpleQuote>(dividendYield);
-    auto qTS = flatRate(evalDate,qRate,dc);
-    auto rRate = qlext::make_shared<QuantLib::SimpleQuote>(riskFreeRate);
-    auto rTS = flatRate(evalDate,rRate,dc);
+    auto qTS = flatRate(evalDate, dividendYield, dc);
+    auto rTS = flatRate(evalDate, riskFreeRate, dc);
 
     auto exercise = qlext::make_shared<QuantLib::AmericanExercise>(evalDate, expiryDate);
     auto payoff = qlext::make_shared<QuantLib::PlainVanillaPayoff>(optionType, strike);

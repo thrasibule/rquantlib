@@ -43,10 +43,8 @@ Rcpp::List europeanOptionEngine(std::string type,
     auto spot  = qlext::make_shared<QuantLib::SimpleQuote>(underlying);
     auto vol   = qlext::make_shared<QuantLib::SimpleQuote>(volatility);
     auto volTS = flatVol(evalDate, vol, dc); 		// cf src/utils.cpp
-    auto qRate = qlext::make_shared<QuantLib::SimpleQuote>(dividendYield);
-    auto qTS   = flatRate(evalDate, qRate, dc); 	// cf src/utils.cpp
-    auto rRate = qlext::make_shared<QuantLib::SimpleQuote>(riskFreeRate);
-    auto rTS   = flatRate(evalDate, rRate, dc); 	// cf src/utils.cpp
+    auto qTS   = flatRate(evalDate, dividendYield, dc); 	// cf src/utils.cpp
+    auto rTS   = flatRate(evalDate, riskFreeRate, dc); 	// cf src/utils.cpp
 
     bool withDividends = discreteDividends.isNotNull() && discreteDividendsTimeUntil.isNotNull();
 
@@ -124,10 +122,8 @@ Rcpp::List americanOptionEngine(std::string type,
     QuantLib::DayCounter dc = getDayCounter(dayCounter);
 
     auto spot  = qlext::make_shared<QuantLib::SimpleQuote>(underlying);
-    auto qRate = qlext::make_shared<QuantLib::SimpleQuote>(dividendYield);
-    auto qTS   = flatRate(evalDate, qRate, dc); 	// cf src/utils.cpp
-    auto rRate = qlext::make_shared<QuantLib::SimpleQuote>(riskFreeRate);
-    auto rTS   = flatRate(evalDate, rRate, dc); 	// cf src/utils.cpp
+    auto qTS   = flatRate(evalDate, dividendYield, dc); 	// cf src/utils.cpp
+    auto rTS   = flatRate(evalDate, riskFreeRate, dc); 	// cf src/utils.cpp
     auto vol   = qlext::make_shared<QuantLib::SimpleQuote>(volatility);
     auto volTS = flatVol(evalDate, vol, dc); 		// cf src/utils.cpp
 
@@ -224,8 +220,7 @@ Rcpp::List europeanOptionArraysEngine(std::string type, Rcpp::NumericMatrix par)
     int n = par.nrow();
     Rcpp::NumericVector value(n), delta(n), gamma(n), vega(n), theta(n), rho(n), divrho(n);
 
-    QuantLib::Date today = QuantLib::Date::todaysDate();
-    QuantLib::Settings::instance().evaluationDate() = today;
+    QuantLib::Date today = QuantLib::Settings::instance().evaluationDate();
 
     QuantLib::DayCounter dc = QuantLib::Actual360();
 
@@ -241,10 +236,8 @@ Rcpp::List europeanOptionArraysEngine(std::string type, Rcpp::NumericMatrix par)
         auto spot  = qlext::make_shared<QuantLib::SimpleQuote>(underlying);
         auto vol   = qlext::make_shared<QuantLib::SimpleQuote>(volatility);
         auto volTS = flatVol(today, vol, dc); 		// cf src/utils.cpp
-        auto qRate = qlext::make_shared<QuantLib::SimpleQuote>(dividendYield);
-        auto qTS   = flatRate(today, qRate, dc); 	// cf src/utils.cpp
-        auto rRate = qlext::make_shared<QuantLib::SimpleQuote>(riskFreeRate);
-        auto rTS   = flatRate(today, rRate, dc); 	// cf src/utils.cpp
+        auto qTS   = flatRate(today, dividendYield, dc); 	// cf src/utils.cpp
+        auto rTS   = flatRate(today, riskFreeRate, dc); 	// cf src/utils.cpp
 
         QuantLib::Date exDate = getFutureDate(today, maturity);
         auto exercise = qlext::make_shared<QuantLib::EuropeanExercise>(exDate);

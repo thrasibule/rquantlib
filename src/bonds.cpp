@@ -205,7 +205,6 @@ Rcpp::List FloatingBond(Rcpp::List rparam,
     QuantLib::DayCounter dc = getDayCounter(dayCounter);
     QuantLib::Frequency freq = getFrequency(frequency);
     QuantLib::DateGeneration::Rule rule = getDateGenerationRule(dateGeneration);
-    bool endOfMonth = (endOfMonthRule==1) ? true : false;
 
     //set up calendar
     QuantLib::Calendar calendar;
@@ -862,8 +861,7 @@ Rcpp::List callableBondEngine(Rcpp::List rparam,
     double gridIntervals = Rcpp::as<double>(hwparam["gridIntervals"]);
     double rate = Rcpp::as<double>(hwparam["term"]);
 
-    auto rRate = qlext::make_shared<QuantLib::SimpleQuote>(rate);
-    QuantLib::Handle<QuantLib::YieldTermStructure> termStructure(flatRate(issueDate,rRate,QuantLib::Actual360()));
+    QuantLib::Handle<QuantLib::YieldTermStructure> termStructure(flatRate(issueDate,rate,QuantLib::Actual360()));
 
     auto hw0 = qlext::make_shared<QuantLib::HullWhite>(termStructure,alpha,sigma);
     auto engine0 = qlext::make_shared<QuantLib::TreeCallableFixedRateBondEngine>(hw0,gridIntervals);

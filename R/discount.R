@@ -19,14 +19,16 @@
 ##  You should have received a copy of the GNU General Public License
 ##  along with RQuantLib.  If not, see <http://www.gnu.org/licenses/>.
 
-DiscountCurve <- function(params, tsQuotes, times=seq(0,10,.1),
+DiscountCurve <- function(params,
+                          tsQuotes,
                           legparams=list(dayCounter="Thirty360",
                                          fixFreq="Annual",
                                          floatFreq="Semiannual")) {
     UseMethod("DiscountCurve")
 }
 
-DiscountCurve.default <- function(params, tsQuotes, times=seq(0,10,.1),
+DiscountCurve.default <- function(params,
+                                  tsQuotes,
                                   legparams=list(dayCounter="Thirty360",
                                                  fixFreq="Annual",
                                                  floatFreq="Semiannual")) {
@@ -46,20 +48,10 @@ DiscountCurve.default <- function(params, tsQuotes, times=seq(0,10,.1),
         stop("Term structure quotes must have numeric values", call.=FALSE)
     }
   
-    ## Check the times vector
-    if (!is.numeric(times) || length(times) == 0) {
-        stop("The times parameter must be a non-emptry numeric vector", call.=FALSE)
-    }
   
     ## Finally ready to make the call...
-    ##val <- .Call("DiscountCurve", params, tsQuotes, times, PACKAGE="RQuantLib")
     matchlegs <- matchParams(legparams)
-    ##val <- discountCurveEngine(params, tsQuotes, times,matchCpnmonthFreq=as.integer(monthFreq))
-    val <- discountCurveEngine(params, tsQuotes, times, matchlegs)
-
-    val[["table"]] <- as.data.frame(val[["table"]])  ## Windows all of a sudden needs this
-    class(val) <- c("DiscountCurve")
-    val
+    return( discountCurveEngine(params, tsQuotes, matchlegs) )
 }
 
 plot.DiscountCurve <- function(x, setpar=TRUE, dolegend=TRUE,...) {

@@ -47,14 +47,6 @@ namespace Rcpp {
 #include <Rcpp.h>
 
 
-//#define NULL_RateHelper (QuantLib::ext::shared_ptr<RateHelper>)Null<QuantLib::ext::shared_ptr<RateHelper> >()
-
-// Prototypes for convenience functions (some macros)
-//void insertListElement(SEXP &list, SEXP &names,
-//                       const int pos, const double value,
-//                       const char *label);
-//SEXP getListElement(SEXP list, char *str);
-
 // Used to maintain context while in an R function.
 class RQLContext : public QuantLib::Singleton<RQLContext> {
 public:
@@ -98,9 +90,11 @@ typedef std::map<std::string, RQLObservable*>::const_iterator RQLMapIterator;
 class ObservableDB : public QuantLib::Singleton<ObservableDB> {
 public:
     ObservableDB();
-    QuantLib::ext::shared_ptr<QuantLib::RateHelper> getRateHelper(std::string& ticker, QuantLib::Rate r);   // original rate helper
-    // modded rate helper to allow variable daycount and frequencies in curve building
-    QuantLib::ext::shared_ptr<QuantLib::RateHelper> getRateHelper(std::string& ticker, QuantLib::Rate r, double fixDayCount, double fixFreq, int floatIndex);
+    QuantLib::ext::shared_ptr<QuantLib::RateHelper> getRateHelper(std::string& ticker,
+                                                          QuantLib::Rate r,
+                                                          int fixDayCount = 6, //Thirty360
+                                                          int fixFreq = 1, //Annual
+                                                          int floatFreq = 6 ); //6 Months
 private:
     RQLMap db_;
 };
@@ -112,19 +106,9 @@ getTermStructure(const std::string& interpWhat, const std::string& interpHow,
                  QuantLib::DayCounter& dayCounter, QuantLib::Real tolerance);
 
 QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure>
-makeFlatCurve(const QuantLib::Date& today,
-              const QuantLib::ext::shared_ptr<QuantLib::Quote>& forward,
-              const QuantLib::DayCounter& dc);
-
-QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure>
 flatRate(const QuantLib::Date& today,
-         const QuantLib::ext::shared_ptr<QuantLib::Quote>& forward,
+         double forward,
          const QuantLib::DayCounter& dc);
-
-QuantLib::ext::shared_ptr<QuantLib::BlackVolTermStructure>
-makeFlatVolatility(const QuantLib::Date& today,
-                   const QuantLib::ext::shared_ptr<QuantLib::Quote>& vol,
-                   QuantLib::DayCounter dc);
 
 QuantLib::ext::shared_ptr<QuantLib::BlackVolTermStructure>
 flatVol(const QuantLib::Date& today,
@@ -155,7 +139,6 @@ makeProcess(const QuantLib::ext::shared_ptr<QuantLib::Quote>& u,
             const QuantLib::ext::shared_ptr<QuantLib::YieldTermStructure>& r,
             const QuantLib::ext::shared_ptr<QuantLib::BlackVolTermStructure>& vol);
 
-// int dateFromR(const RcppDate &d);    // using 'classic' API's RcppDate
 int dateFromR(const Rcpp::Date &d); // using 'new' API's Rcpp::Date
 
 //utility functions for parameters of fixed-income instrument function
