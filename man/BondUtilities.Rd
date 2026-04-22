@@ -47,7 +47,7 @@ matchParams(params)
 
   Note that \code{Actual365NoLeap} is soft deprecated as of QuantLib 1.11 and hard deprecated as of
   QuantLib 1.16. For users on QuantLib 1.16 or later, use of the RQuantLib daycounter enum with a
-  value of severn will result in \code{Actual365Fixed(Actual365Fixed::NoLeap)} which is functionally
+  value of seven will result in \code{Actual365Fixed(Actual365Fixed::NoLeap)} which is functionally
   equivalent to \code{Actual365NoLeap}. Previously RQuantLib allowed users to retain
   \code{Actual365NoLeap} via defining \code{RQUANTLIB_USE_ACTUAL365NOLEAP}, but this is no longer
   required.
